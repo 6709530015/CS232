@@ -15,4 +15,25 @@ class User(UserBase):
     class Config:
         from_attributes = True
 
+class TaskBase(BaseModel):
+    title: str
+    description: str | None = None
+    due_date: datetime | None = None
+    is_completed: bool = False
 
+class TaskCreate(TaskBase):
+    pass
+
+class Task(TaskBase):
+    id: UUID
+    owner_id: UUID
+
+    class Config:
+        from_attributes = True
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    user_id: str | None = None
