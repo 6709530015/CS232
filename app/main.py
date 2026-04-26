@@ -31,6 +31,7 @@ def login(
     form_data: OAuth2PasswordRequestForm = Depends()
 ):
     user = crud.get_user_by_email(db, email=form_data.username)
+    
     if not user or not auth.verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

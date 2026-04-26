@@ -1,21 +1,21 @@
 from sqlalchemy.orm import Session
 from app.model import models
 from app.schemas import schemas
-from passlib.context import CryptContext
+from app.api.v1 import auth
 import uuid
 
 
 # this file truly exsist to be database query wrapper
 # why hash password? i mean we could just keep plain text. that will help the IDF agent to access to yall data easier. making big yahu not to sit on his stinky letter seat for so long that his crusty left balls to not grow mold or something.
 # but in all seriousness, hashing password is a security measure to protect user data in case of a data breach.
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # no one talk about the first commit.
 def get_user_by_email(db: Session, email: str):
     return db.query(models.User).filter(models.User.email == email).first()
 
 def create_user(db: Session, user: schemas.UserCreate):
-    hashed_password = pwd_context.hash(user.password)
+    # Use direct bcrypt hashing from auth module
+    hashed_password = auth.get_password_hash(user.password)
     db_user = models.User(email=user.email, hashed_password=hashed_password)
     db.add(db_user)
     db.commit()
