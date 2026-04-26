@@ -6,8 +6,13 @@ Welcome to the backend for **Infinite Loop group**! We're using **FastAPI** and 
 
 ### 1. Install uv
 Run this if you dont have uv python package management on your system
+Linux
 ```bash
 curl -sSL https://astral.sh/uv/install.sh | sh
+```
+Windows
+```bash
+pip install uv
 ```
 
 ### 2. Install Dependencies
