@@ -1,214 +1,369 @@
+/*==========Sign in=================*/
 body {
-  margin: 0;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(180deg, #eef5ff 0%, #a2c7ff 100%);
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(180deg, #eef5ff 0%, #a2c7ff 100%);
 }
 
 .logo-section {
-  text-align: center;
-  color: #5b76c8;
-  margin-bottom: 20px;
+    text-align: center;
+    color: #5b76c8;
+    margin-bottom: 20px;
 }
 
 .infinity-icon {
-  font-size: 80px;
-  line-height: 1;
+    font-size: 80px;
+    line-height: 1;
 }
 
 .login-card {
-  background: white;
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-  width: 350px;
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    width: 350px;
 }
 
 .input-group {
-  margin-bottom: 20px;
+    margin-bottom: 20px;
 }
 
 .input-group label {
-  display: block;
-  color: #3b4d8d;
-  font-weight: bold;
-  margin-bottom: 8px;
+    display: block;
+    color: #3b4d8d;
+    font-weight: bold;
+    margin-bottom: 8px;
 }
 
 .input-group input {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #c0ccda;
-  border-radius: 8px;
-  box-sizing: border-box;
-  background-color: #fcfdfe;
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #c0ccda;
+    border-radius: 8px;
+    box-sizing: border-box;
+    background-color: #fcfdfe;
 }
 
 .sign-in-btn {
-  width: 100%;
-  padding: 12px;
-  background-color: #5b67b7;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background 0.3s;
+    width: 100%;
+    padding: 12px;
+    background-color: #5b67b7;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s;
 }
 
 .sign-in-btn:hover {
-  background-color: #4a54a3;
+    background-color: #4a54a3;
 }
 
-* { box-sizing: border-box; font-family: sans-serif; }
-body, html { margin: 0; height: 100%; /*overflow: hidden;*/ }
+* {
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
 
+body,
+html {
+    margin: 0;
+    height: 100%;
+    /*overflow: hidden;*/
+}
+
+/*================Main==================*/
+/*Sidebar*/
 .wrapper {
-  display: flex;
-  height: 100vh;
-  width: 100%;
+    display: flex;
+    height: 100vh;
+    width: 100%;
 }
 
 .sidebar {
-  width: 220px;
-  background-color: #89bfff;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  justify-content:left;
-  padding: 20px 0;
-  flex-shrink: 0;
+    width: 220px;
+    background-color: #89bfff;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+    padding: 20px 0;
+    flex-shrink: 0;
 }
 
-.logo { text-align: center; margin-bottom: 30px; }
-.logo .icon { font-size: 40px; display: block; }
-.logo p { margin: 0; font-weight: bold; letter-spacing: 2px; }
+.logo {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.logo .icon {
+    font-size: 40px;
+    display: block;
+}
+
+.logo p {
+    margin: 0;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
 
 .menu-item {
-  display: block;
-  padding: 12px 20px;
-  color: white;
-  text-decoration: none;
-  font-size: 14px;
+    display: block;
+    padding: 12px 20px;
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
 }
 
-.menu-item.active { background-color: rgba(255, 255, 255, 0.4); }
-.menu-item:hover { background-color: rgba(255, 255, 255, 0.2); }
+.menu-item.active {
+    background-color: rgba(255, 255, 255, 0.4);
+}
 
+.menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/*===========Calendar============*/
 .main-content {
-  flex-grow: 1;
-  background-color: #f0f6ff;
-  position: relative;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
+    flex-grow: 1;
+    background-color: #f0f6ff;
+    position: relative;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 .container {
-  max-width: 800px;
-  margin: 40px auto;
-  width: 90%;
-  flex-grow: 1;
+    max-width: 800px;
+    margin: 40px auto;
+    width: 90%;
+    flex-grow: 1;
 }
 
 .calendar-header {
-  text-align: center;
-  border: 1px solid #999;
-  width: 100%;
-  padding: 10px;
-  background: white;
-  color: #4a54a3;
-  font-weight: bold;
+    text-align: center;
+    border: 1px solid #999;
+    width: 100%;
+    padding: 10px;
+    background: white;
+    color: #4a54a3;
+    font-weight: bold;
 }
 
 .calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  width: 100%;
-  background: white;
-  border-left: 1px solid #999;
-  border-top: 1px solid #999;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    width: 100%;
+    background: white;
+    border-left: 1px solid #999;
+    border-top: 1px solid #999;
 }
 
-.day-label, .date-cell {
-  border-right: 1px solid #999;
-  border-bottom: 1px solid #999;
-  padding: 15px 5px;
-  text-align: center;
-  font-size: 13px;
+.day-label,
+.date-cell {
+    border-right: 1px solid #999;
+    border-bottom: 1px solid #999;
+    padding: 15px 5px;
+    text-align: center;
+    font-size: 13px;
 }
 
-.day-label { color: #4a54a3; font-weight: bold; }
-.date-cell { height: 60px; color: #4a54a3; }
-.date-cell.highlight { background-color: #5b67b7; color: white; }
-.date-cell.muted { color: #ccc; }
+.day-label {
+    color: #4a54a3;
+    font-weight: bold;
+}
 
-.task-section { margin-top: 30px; }
+.date-cell {
+    height: 60px;
+    color: #4a54a3;
+}
+
+.date-cell.highlight {
+    background-color: #5b67b7 !important;
+    color: white !important;
+}
+
+.date-cell.muted {
+    color: #ccc;
+}
+
+/*=================Task=============*/
+.task-section {
+    margin-top: 30px;
+}
+
 .task-card {
-  background: white;
-  border: 1px solid #5b67b7;
-  border-radius: 8px;
-  padding: 12px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
+    background: white;
+    border: 1px solid #5b67b7;
+    border-radius: 8px;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
 }
 
-.task-info { display: flex; align-items: center; gap: 10px; }
-.circle { width: 18px; height: 18px; border: 2px solid #5b67b7; border-radius: 50%; }
-.task-meta { display: flex; align-items: center; gap: 15px; color: #666; }
+.task-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.circle {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #5b67b7;
+    border-radius: 50%;
+}
+
+.task-meta {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: #666;
+}
 
 .completed-btn {
-  background: #89bfff;
-  color: white;
-  border: none;
-  padding: 5px 15px;
-  border-radius: 5px;
-  cursor: pointer;
+    background: #89bfff;
+    color: white;
+    border: none;
+    padding: 5px 15px;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
 .fab {
-  position: fixed;
-  right: 40px;
-  bottom: 80px;
-  width: 50px;
-  height: 50px;
-  background: #89bfff;
-  color: white;
-  border-radius: 50%;
-  border: none;
-  font-size: 30px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  cursor: pointer;
+    position: fixed;
+    right: 40px;
+    bottom: 80px;
+    width: 50px;
+    height: 50px;
+    background: #89bfff;
+    color: white;
+    border-radius: 50%;
+    border: none;
+    font-size: 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
 }
 
 .bottom-bar {
-  background: #aacfff;
-  text-align: center;
-  padding: 10px;
-  font-size: 12px;
-  color: white;
+    background: #aacfff;
+    text-align: center;
+    padding: 10px;
+    font-size: 12px;
+    color: white;
 }
 
 .date-cell.clickable {
-  cursor: pointer;
-  transition: background 0.2s;
+    cursor: pointer;
+    transition: background 0.2s;
 }
 
 .date-cell.clickable:hover {
-  background-color: #7FBDFF;
+    background-color: #7FBDFF;
 }
 
 .date-cell.highlight-main {
-  background-color: #5b67b7 !important;
-  color: white !important;
+    background-color: #5b67b7 !important;
+    color: white !important;
 }
 
 .task-card.highlight-task {
-  border: 2px solid #ff6b6b;
-  box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3);
+    border: 2px solid #ff6b6b;
+    box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3);
+}
+
+.task-highlight-active {
+    background-color: #7FBDFF !important;
+    transition: background-color 0.3s;
+}
+
+.task-card.task-highlight-active:hover {
+    background-color: white !important;
+}
+
+/*===================completed task=======================*/
+.task-card.completed {
+    background-color: #f9f9f9;
+    border-color: #ccc;
+    color: #888;
+}
+
+.task-card.completed .task-info {
+    text-decoration: line-through;
+}
+
+.task-card.completed .circle {
+    background-color: #5b67b7;
+    position: relative;
+}
+
+.task-card.completed .circle::after {
+    content: '✓';
+    color: white;
+    font-size: 12px;
+    position: absolute;
+    top: -2px;
+    left: 2px;
+}
+
+.circle {
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.circle:hover {
+    background-color: rgba(91, 103, 183, 0.2);
+}
+
+/*==============Add task assignment==================*/
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 30px;
+    border-radius: 15px;
+    width: 400px;
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+.save-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #5b67b7;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+textarea {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 8px;
 }
