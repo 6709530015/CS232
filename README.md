@@ -1,6 +1,6 @@
-# 🚀 INFINITE WEBSITE BACKEND
+# 🚀 INFINITE LOOP'S WEBSITE BACKEND
 
-Welcome to the backend for **Infinite Website**! We're using **FastAPI** and **uv** to build the fastest deadline reminder system on the planet.
+Welcome to the backend for **Infinite Loop group**! We're using **FastAPI** and **uv** to build the fastest deadline reminder system on the planet.
 
 ## 🛠️ Setup
 
