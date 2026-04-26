@@ -1,11 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Main</title>
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    
+    <!--=========================Sidebar=====================-->
+    <div class="wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-top">
+                <div class="logo">
+                    <span class="icon">∞</span>
+                    <p>INFINITE</p>
+                </div>
+                <nav class="menu">
+                    <a href="#" class="menu-item"><span class="bullet">🔔</span> Notification</a><!--Temporary icon-->
+                    <a href="#" class="menu-item active"><span class="bullet">📅</span>
+                        Calendar</a><!--Temporary icon-->
+                </nav>
+            </div>
+
+            <div class="sidebar-bottom">
+                <a href="#" class="menu-item">⚙️ Setting</a><!--Temporary icon-->
+                <a href="#" class="menu-item">↪️ Log out</a><!--Temporary icon-->
+            </div>
+        </aside>
+        <!--===================Calendar========================-->
+        <main class="main-content">
+            <div class="container">
+
+                <div class="calendar-header">MARCH, 2026</div>
+
+                <div class="calendar-grid" id="calendarGrid">
+                    <div class="day-label">SUN</div>
+                    <div class="day-label">MON</div>
+                    <div class="day-label">TUE</div>
+                    <div class="day-label">WED</div>
+                    <div class="day-label">THU</div>
+                    <div class="day-label">FRI</div>
+                    <div class="day-label">SAT</div>
+                </div>
+                <!--===================Task assignment=====================-->
+                <div class="task-section">
+                    <h3>Task to do</h3>
+                    <div class="task-card">
+                        <div class="task-info">
+                            <span class="circle"></span> CS222 Algorithm
+                        </div>
+                        <div class="task-meta">
+                            <span>27/03/2026</span>
+                            <span class="delete-icon">🗑️</span><!--Temporary icon-->
+                        </div>
+                    </div>
+                    <div class="task-card">
+                        <div class="task-info">
+                            <span class="circle"></span> CS271 OS
+                        </div>
+                        <div class="task-meta">
+                            <span>28/03/2026</span>
+                            <span class="delete-icon">🗑️</span><!--Temporary icon-->
+                        </div>
+                    </div>
+                    <button class="completed-btn">Completed 1 ▲</button>
+                </div>
+            </div>
+            <button class="fab">+</button> <!--Add task-->
+            <footer class="bottom-bar">Powered by Infinite Loop</footer>
+        </main>
+    </div>
 </body>
+<script src="script.js"></script>
+
 </html>
