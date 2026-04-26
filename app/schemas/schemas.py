@@ -31,9 +31,33 @@ class Task(TaskBase):
     class Config:
         from_attributes = True
 
+class TaskUpdate(BaseModel):
+    title: str | None = None
+    description: str | None = None
+    due_date: datetime | None = None
+    is_completed: bool | None = None
+
 class Token(BaseModel):
     access_token: str
     token_type: str
 
 class TokenData(BaseModel):
     user_id: str | None = None
+
+
+class UserSettingBase(BaseModel):
+    theme: str = "light"
+    notify_before_minutes: int = 60
+    is_email_notify: bool = True
+
+class UserSettingUpdate(UserSettingBase):
+    theme: str | None = None
+    notify_before_minutes: int | None = None
+    is_email_notify: bool | None = None
+
+class UserSetting(UserSettingBase):
+    id: int
+    user_id: UUID
+
+    class Config:
+        from_attributes = True

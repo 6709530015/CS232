@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+import uuid
 from app.model import models
 from app.api.v1 import auth
 from app.core import crud
@@ -56,3 +57,43 @@ def create_task(
     current_user: models.User = Depends(auth.get_current_user)
 ):
     return crud.create_user_task(db=db, task=task, user_id=current_user.id)
+
+@app.patch("/tasks/{task_id}", response_model=schemas.Task)
+def update_task(
+    task_id: uuid.UUID,
+    task_update: schemas.TaskUpdate, 
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_user)
+):
+    db_task = crud.update_task(db, task_id=task_id, task_update=task_update, user_id=current_user.id)
+    if not db_task:
+        raise HTTPException(status_code=404, detail="Task not found or permission denied")
+    return db_task
+
+@app.delete("/tasks/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_task(
+    task_id: uuid.UUID,
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_user)
+):
+    success = crud.delete_task(db, task_id=task_id, user_id=current_user.id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return None
+
+@app.get("/settings", response_model=schemas.UserSetting)
+def read_settings(db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
+    settings = crud.get_user_settings(db, user_id=current_user.id)
+    if not settings:
+        from app.schemas.schemas import UserSettingUpdate
+        default_settings = UserSettingUpdate(theme="light", notify_before_minutes=60)
+        settings = crud.update_user_settings(db, settings=default_settings, user_id=current_user.id)
+    return settings
+
+@app.patch("/settings", response_model=schemas.UserSetting)
+def update_settings(
+    settings_in: schemas.UserSettingUpdate,
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_user)
+):
+    return crud.update_user_settings(db, settings=settings_in, user_id=current_user.id)

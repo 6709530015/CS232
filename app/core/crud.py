@@ -31,3 +31,51 @@ def create_user_task(db: Session, task: schemas.TaskCreate, user_id: uuid.UUID):
     db.commit()
     db.refresh(db_task)
     return db_task
+
+def update_task(db: Session, task_id: uuid.UUID, task_update: schemas.TaskUpdate, user_id: uuid.UUID):
+
+    db_task = db.query(models.Task).filter(
+        models.Task.id == task_id, 
+        models.Task.owner_id == user_id
+    ).first()
+    
+    if not db_task:
+        return None
+        
+    update_data = task_update.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(db_task, key, value)
+        
+    db.commit()
+    db.refresh(db_task)
+    return db_task
+
+def delete_task(db: Session, task_id: uuid.UUID, user_id: uuid.UUID):
+    db_task = db.query(models.Task).filter(
+        models.Task.id == task_id, 
+        models.Task.owner_id == user_id
+    ).first()
+    
+    if db_task:
+        db.delete(db_task)
+        db.commit()
+        return True
+    return False
+
+def get_user_settings(db: Session, user_id: uuid.UUID):
+    return db.query(models.UserSetting).filter(models.UserSetting.user_id == user_id).first()
+
+def update_user_settings(db: Session, settings: schemas.UserSettingUpdate, user_id: uuid.UUID):
+    db_setting = db.query(models.UserSetting).filter(models.UserSetting.user_id == user_id).first()
+    
+    if not db_setting:
+        db_setting = models.UserSetting(**settings.model_dump(), user_id=user_id)
+        db.add(db_setting)
+    else:
+        update_data = settings.model_dump(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(db_setting, key, value)
+            
+    db.commit()
+    db.refresh(db_setting)
+    return db_setting
