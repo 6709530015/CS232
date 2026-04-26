@@ -1,0 +1,64 @@
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(180deg, #eef5ff 0%, #a2c7ff 100%);
+}
+
+.logo-section {
+  text-align: center;
+  color: #5b76c8;
+  margin-bottom: 20px;
+}
+
+.infinity-icon {
+  font-size: 80px;
+  line-height: 1;
+}
+
+.login-card {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  width: 350px;
+}
+
+.input-group {
+  margin-bottom: 20px;
+}
+
+.input-group label {
+  display: block;
+  color: #3b4d8d;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #c0ccda;
+  border-radius: 8px;
+  box-sizing: border-box;
+  background-color: #fcfdfe;
+}
+
+.sign-in-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #5b67b7;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.sign-in-btn:hover {
+  background-color: #4a54a3;
+}
