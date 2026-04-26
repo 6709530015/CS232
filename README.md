@@ -5,16 +5,17 @@ Welcome to the backend for **Infinite Loop group**! We're using **FastAPI** and 
 ## 🛠️ Setup
 
 ### 1. Install uv
-Run this if you dont have uv python package management on your system
-Linux
+Run this if you don't have the `uv` python package management on your system.
+
+**Linux**
 ```bash
 curl -sSL https://astral.sh/uv/install.sh | sh
 ```
-Windows
+
+**Windows**
 ```bash
 pip install uv
 ```
-
 ### 2. Install Dependencies
 ```bash
 uv sync
