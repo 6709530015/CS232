@@ -1,0 +1,280 @@
+        :root {
+            /* Light Theme Variables */
+            --notification-red: #F65C5C;
+            --main-text: #525BB4;
+            --sub-text: #8c94d6;
+            --sidebar-btn-color: #7FBDFF;
+            --bg-color: #F3F5FF;
+            --card-bg: #FAFCFC;
+            --white: #FFFFFF;
+            --sidebar-active-bg: #FFFFFF;
+            --sidebar-active-text: #7FBDFF;
+            --input-border: #8c94d6;
+            --gray-avatar: #D9D9D9;
+        }
+
+        /* Dark Theme Overrides */
+        body.dark-theme {
+            --main-text: #FFFFFF;
+            --sub-text: #A0A0A0;
+            --bg-color: #2D2D2D;
+            --card-bg: #1E1E1E;
+            --sidebar-active-bg: #1E1E1E;
+            --sidebar-active-text: #7FBDFF;
+            --input-border: #555555;
+            --gray-avatar: #444444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--main-text);
+            overflow: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* --- Sidebar Styles --- */
+        .sidebar {
+            width: 250px;
+            background-color: var(--sidebar-btn-color);
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar-top {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-container {
+            text-align: center;
+            padding: 30px 0;
+            font-weight: bold;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+        }
+
+        .menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .menu-item {
+            padding: 15px 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.1rem;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .menu-item.active {
+            background-color: var(--sidebar-active-bg);
+            color: var(--sidebar-active-text);
+            font-weight: 500;
+        }
+
+        .sidebar-bottom {
+            margin-bottom: 40px;
+        }
+
+        /* --- Main Content Styles --- */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 40px 60px;
+            overflow-y: auto;
+        }
+
+        .back-link {
+            font-size: 1.2rem;
+            color: var(--main-text);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            cursor: pointer;
+            width: fit-content;
+            transition: opacity 0.2s, color 0.3s ease;
+        }
+
+        .back-link:hover {
+            opacity: 0.7;
+        }
+
+        /* --- Settings Card Styles --- */
+        .settings-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 40px 60px;
+            max-width: 800px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+            flex: 1;
+            transition: background-color 0.3s ease;
+            
+            /* Hidden by default, JavaScript will toggle this */
+            display: none; 
+        }
+
+        /* Show the active card */
+        .settings-card.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-header {
+            margin-bottom: 30px;
+        }
+
+        .card-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            color: var(--main-text);
+            transition: color 0.3s ease;
+        }
+
+        .card-header p {
+            font-size: 0.9rem;
+            color: var(--sub-text);
+            transition: color 0.3s ease;
+        }
+
+        /* --- Account Form Styles --- */
+        .section-title {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            margin-left: 40px;
+            color: var(--main-text);
+            font-weight: 600;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            row-gap: 25px;
+            column-gap: 20px;
+            align-items: center;
+            margin-left: 40px;
+            max-width: 500px;
+        }
+
+        .form-label {
+            font-size: 0.95rem;
+            color: var(--main-text);
+        }
+
+        .avatar-row {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .avatar-circle {
+            width: 60px;
+            height: 60px;
+            background-color: var(--gray-avatar);
+            border-radius: 50%;
+            transition: background-color 0.3s;
+        }
+
+        .btn-upload {
+            background: transparent;
+            color: var(--main-text);
+            border: 1px solid var(--main-text);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-upload:hover {
+            background-color: var(--sidebar-btn-color);
+            color: var(--white);
+            border-color: var(--sidebar-btn-color);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid var(--input-border);
+            border-radius: 6px;
+            font-size: 1rem;
+            color: var(--main-text);
+            background-color: transparent;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s, color 0.3s;
+        }
+
+        .form-input:focus {
+            border-color: var(--sidebar-btn-color);
+            box-shadow: 0 0 0 2px rgba(127, 189, 255, 0.2);
+        }
+
+        /* --- Theme Selector Styles --- */
+        .theme-section {
+            margin-left: 30px;
+        }
+
+        .theme-status {
+            font-size: 1.1rem;
+            color: var(--main-text);
+            margin-bottom: 20px;
+            transition: color 0.3s ease;
+        }
+
+        .theme-swatches {
+            display: flex;
+            gap: 25px;
+        }
+
+        .swatch {
+            width: 45px;
+            height: 45px;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transition: all 0.2s ease;
+            border: 3px solid transparent; 
+            outline: 3px solid transparent; 
+        }
+
+        .swatch.light { background-color: #FFFFFF; }
+        .swatch.dark { background-color: #000000; }
+
+        .swatch.active {
+            outline-color: #7FBDFF; 
+            border-color: var(--card-bg); 
+        }

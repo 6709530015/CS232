@@ -4,9 +4,101 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Setting</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="setting.css">
 </head>
 <body>
+
+    <nav class="sidebar">
+        <div class="sidebar-top">
+            <div class="logo-container">
+                <div class="logo-icon"><i class="fa-solid fa-infinity"></i></div>
+                <div>INFINITE</div>
+            </div>
+            <ul class="menu">
+                <li id="nav-account" class="menu-item active" onclick="switchTab('account')">
+                    <i class="fa-regular fa-circle-user"></i>
+                    Account
+                </li>
+                <li id="nav-theme" class="menu-item" onclick="switchTab('theme')">
+                    <i class="fa-regular fa-clone"></i>
+                    Theme
+                </li>
+                <li class="menu-item">
+                    <i class="fa-regular fa-clock"></i>
+                    Set reminder
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-bottom">
+            <ul class="menu">
+                <li class="menu-item">
+                    <i class="fa-solid fa-arrow-right-from-bracket" style="transform: scaleX(-1);"></i>
+                    Log out
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        
+        <div onclick="GoToHome()" class="back-link">
+            <i class="fa-solid fa-angle-left"></i>
+            Setting
+        </div>
+
+        <div id="content-account" class="settings-card active">
+            <div class="card-header">
+                <h1>Account</h1>
+                <p>Manage your account</p>
+            </div>
+
+            <h2 class="section-title">Profile</h2>
+
+            <div class="form-grid">
+                <div class="form-label">Profile Picture:</div>
+                <div class="avatar-row">
+                    <div class="avatar-circle"></div>
+                    <button class="btn-upload">
+                        <i class="fa-solid fa-arrow-up-from-bracket"></i> Upload
+                    </button>
+                </div>
+
+                <div class="form-label">First name:</div>
+                <input type="text" class="form-input" value="John">
+
+                <div class="form-label">Middle name:</div>
+                <input type="text" class="form-input" placeholder="">
+
+                <div class="form-label">Last name:</div>
+                <input type="text" class="form-input" value="Doe">
+
+                <div class="form-label">Email address</div>
+                <input type="email" class="form-input" value="JohnDoe@email.com">
+            </div>
+        </div>
+
+        <div id="content-theme" class="settings-card">
+            <div class="card-header">
+                <h1>Theme</h1>
+                <p>Change how your app looks</p>
+            </div>
+
+            <div class="theme-section">
+                <div class="theme-status" id="theme-status-text">Light</div>
+                
+                <div class="theme-swatches">
+                    <div class="swatch light active" onclick="setTheme('light')" title="Light Theme"></div>
+                    <div class="swatch dark" onclick="setTheme('dark')" title="Dark Theme"></div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+<script src="setting.js">
+
+    </script>
     
 </body>
 </html>
