@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="login-container">
+  <!--Logo here (Didn't do yet)-->
+  </div>
+
+  <div class="login-card">
+    <form id="loginForm">
+      <div class="input-group">
+        <label>Email @dome.tu.ac.th</label>
+        <input type="email" id="email" placeholder="example@dome.tu.ac.th" required>
+      </div>
+
+      <div class="input-group">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="password" required>
+      </div>
+
+      <button type="submit" class="sign-in-btn">Sign In</button>
+    </form>
+    <button id="signupBtn" class="sign-in-btn" style="margin-top: 10px;">Sign Up</button>
+    <div id="messageBox" style="display: none; margin-top: 15px; padding: 12px; border-radius: 5px; text-align: center; font-weight: bold;"></div>
+  </div>
+</div>
+
+<script>
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const messageBox = document.getElementById('messageBox');
+    console.log('Logging in with email:', email);
+
+    try {
+        const response = await fetch('/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                username: email,
+                password: password,
+            }),
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log('Login successful');
+            localStorage.setItem('token', data.access_token);
+            messageBox.textContent = 'Login successful! Redirecting...';
+            messageBox.style.backgroundColor = '#4CAF50';
+            messageBox.style.color = 'white';
+            messageBox.style.display = 'block';
+            setTimeout(() => window.location.href = 'main.html', 1000);
+        } else {
+            const error = await response.json();
+            console.error('Login error:', error);
+            messageBox.textContent = error.detail || 'Login failed';
+            messageBox.style.backgroundColor = '#f44336';
+            messageBox.style.color = 'white';
+            messageBox.style.display = 'block';
+        }
+    } catch (error) {
+        console.error('Network error:', error);
+        messageBox.textContent = 'Network error: ' + error.message;
+        messageBox.style.backgroundColor = '#f44336';
+        messageBox.style.color = 'white';
+        messageBox.style.display = 'block';
+    }
+});
+
+document.getElementById('signupBtn').addEventListener('click', async () => {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const messageBox = document.getElementById('messageBox');
+    console.log('Signing up with email:', email);
+
+    if (!email || !password) {
+        messageBox.textContent = 'Please fill in email and password';
+        messageBox.style.backgroundColor = '#ff9800';
+        messageBox.style.color = 'white';
+        messageBox.style.display = 'block';
+        return;
+    }
+
+    try {
+        const response = await fetch('/signup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password,
+                name: email.split('@')[0] // Use part before @ as name
+            }),
+        });
+
+        if (response.ok) {
+            console.log('Signup successful, auto-logging in...');
+            messageBox.textContent = '✓ Signup successful! Logging you in...';
+            messageBox.style.backgroundColor = '#4CAF50';
+            messageBox.style.color = 'white';
+            messageBox.style.display = 'block';
+            
+            // Auto-login after signup
+            setTimeout(async () => {
+                try {
+                    const loginResponse = await fetch('/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            username: email,
+                            password: password,
+                        }),
+                    });
+
+                    if (loginResponse.ok) {
+                        const loginData = await loginResponse.json();
+                        localStorage.setItem('token', loginData.access_token);
+                        messageBox.textContent = '✓ Login successful! Redirecting...';
+                        setTimeout(() => window.location.href = 'main.html', 500);
+                    }
+                } catch (error) {
+                    console.error('Auto-login failed:', error);
+                    messageBox.textContent = 'Signup successful! Please click Sign In to login.';
+                }
+            }, 500);
+        } else {
+            const error = await response.json();
+            console.error('Signup error:', error);
+            messageBox.textContent = error.detail || 'Signup failed';
+            messageBox.style.backgroundColor = '#f44336';
+            messageBox.style.color = 'white';
+            messageBox.style.display = 'block';
+        }
+    } catch (error) {
+        console.error('Network error:', error);
+        messageBox.textContent = 'Network error: ' + error.message;
+        messageBox.style.backgroundColor = '#f44336';
+        messageBox.style.color = 'white';
+        messageBox.style.display = 'block';
+    }
+});
+</script>
+</body>
+</html>
