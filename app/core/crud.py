@@ -4,12 +4,6 @@ from app.schemas import schemas
 from app.api.v1 import auth
 import uuid
 
-
-# this file truly exsist to be database query wrapper
-# why hash password? i mean we could just keep plain text. that will help the IDF agent to access to yall data easier. making big yahu not to sit on his stinky letter seat for so long that his crusty left balls to not grow mold or something.
-# but in all seriousness, hashing password is a security measure to protect user data in case of a data breach.
-
-# no one talk about the first commit.
 def get_user_by_email(db: Session, email: str):
     return db.query(models.User).filter(models.User.email == email).first()
 

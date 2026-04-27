@@ -7,6 +7,7 @@ from app.api.v1 import auth
 from app.core import crud
 from app.database import database
 from app.schemas import schemas
+from datetime import datetime, timezone, timedelta
 
 app = FastAPI(title="Infinite Website")
 
@@ -97,3 +98,33 @@ def update_settings(
     current_user: models.User = Depends(auth.get_current_user)
 ):
     return crud.update_user_settings(db, settings=settings_in, user_id=current_user.id)
+
+@app.get("/notifications", response_model=list[schemas.Notification])
+def read_notifications(
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_user)
+):
+    settings = crud.get_user_settings(db, user_id=current_user.id)
+    notify_minutes = settings.notify_before_minutes if settings else 60
+
+    now = datetime.now(timezone.utc)
+    notify_until = now + timedelta(minutes=notify_minutes)
+
+    tasks = db.query(models.Task).filter(
+        models.Task.owner_id == current_user.id,
+        models.Task.is_completed == False,
+        models.Task.due_date != None,
+        models.Task.due_date <= notify_until
+    ).all()
+
+    return [
+        {
+            "task_id": task.id,
+            "title": task.title,
+            "description": task.description,
+            "due_date": task.due_date,
+            "message": "ใกล้ถึงกำหนดส่งแล้ว",
+            "is_completed": task.is_completed
+        }
+        for task in tasks
+    ]

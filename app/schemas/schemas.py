@@ -61,3 +61,14 @@ class UserSetting(UserSettingBase):
 
     class Config:
         from_attributes = True
+
+class Notification(BaseModel):
+    task_id: UUID
+    title: str
+    description: str | None = None
+    due_date: datetime
+    message: str
+    is_completed: bool
+
+    class Config:
+        from_attributes = True
