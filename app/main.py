@@ -1,5 +1,7 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+import os
+from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from app.model import models
 from app.api.v1 import auth
@@ -7,10 +9,17 @@ from app.core import crud
 from app.database import database
 from app.schemas import schemas
 from datetime import datetime, timezone, timedelta
+from typing import List, Optional
 
 app = FastAPI(title="Infinite Website")
 
-# สร้างตารางอัตโนมัติ
+# --- SETUP STATIC FILES (สำหรับฟีเจอร์แนบงาน) ---
+UPLOAD_DIR = "uploads"
+if not os.path.exists(UPLOAD_DIR):
+    os.makedirs(UPLOAD_DIR)
+
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
+
 models.Base.metadata.create_all(bind=database.engine)
 
 @app.get("/")
@@ -37,7 +46,7 @@ def login(db: Session = Depends(database.get_db), form_data: OAuth2PasswordReque
     return {"access_token": access_token, "token_type": "bearer"}
 
 # --- TASK ROUTES ---
-@app.get("/tasks", response_model=list[schemas.Task])
+@app.get("/tasks", response_model=List[schemas.Task])
 def read_tasks(db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
     return crud.get_user_tasks(db, user_id=current_user.user_id)
 
@@ -59,6 +68,33 @@ def delete_task(task_id: int, db: Session = Depends(database.get_db), current_us
         raise HTTPException(status_code=404, detail="Task not found")
     return None
 
+@app.post("/tasks/{task_id}/upload", response_model=schemas.Task)
+async def upload_task_file(
+    task_id: int, 
+    file: UploadFile = File(...), 
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_user)
+):
+    db_task = db.query(models.Task).filter(
+        models.Task.task_id == task_id, 
+        models.Task.user_id == current_user.user_id
+    ).first()
+    
+    if not db_task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    file_extension = os.path.splitext(file.filename)[1]
+    new_filename = f"task_{task_id}_{int(datetime.now().timestamp())}{file_extension}"
+    file_path = os.path.join(UPLOAD_DIR, new_filename)
+
+    with open(file_path, "wb") as buffer:
+        buffer.write(await file.read())
+
+    db_task.file_url = f"/uploads/{new_filename}"
+    db.commit()
+    db.refresh(db_task)
+    return db_task
+
 # --- SETTINGS ROUTES ---
 @app.get("/settings", response_model=schemas.UserSetting)
 def read_settings(db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
@@ -73,7 +109,7 @@ def update_settings(settings_in: schemas.UserSettingUpdate, db: Session = Depend
     return crud.update_user_settings(db, settings=settings_in, user_id=current_user.user_id)
 
 # --- NOTIFICATIONS ROUTE ---
-@app.get("/notifications", response_model=list[schemas.Notification])
+@app.get("/notifications") 
 def read_notifications(db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
     settings = crud.get_user_settings(db, user_id=current_user.user_id)
     days_to_notify = settings.reminder_days if settings else 1
