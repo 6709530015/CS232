@@ -46,8 +46,6 @@ def create_access_token(data: dict):
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-# This is check for the token i was yapping about
-# has to use docGPT to do this part. so becareful with it. it fragile and can break easily. 
 # this function is used to authenticate the user by checking the username and password. it will query the database to get the user object, then verify the password using the verify_password function. if the authentication is successful, it will return the user object, otherwise it will return None.
 def get_current_user( db: Session = Depends(database.get_db),token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
