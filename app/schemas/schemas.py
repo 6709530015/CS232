@@ -1,74 +1,81 @@
 from pydantic import BaseModel, EmailStr, Field
-from uuid import UUID
 from datetime import datetime
+from typing import Optional
 
 class UserBase(BaseModel):
     email: EmailStr
+    name: Optional[str] = None 
 
 class UserCreate(UserBase):
     password: str = Field(..., max_length=72)
 
 class User(UserBase):
-    id: UUID
+    user_id: int  
     created_at: datetime
     
     class Config:
         from_attributes = True
 
+# --- TASK SCHEMAS ---
 class TaskBase(BaseModel):
     title: str
-    description: str | None = None
-    due_date: datetime | None = None
-    is_completed: bool = False
+    description: Optional[str] = None
+    due_date: datetime
+    status: str = "pending" 
 
 class TaskCreate(TaskBase):
     pass
 
+class TaskUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    due_date: Optional[datetime] = None
+    status: Optional[str] = None
+
 class Task(TaskBase):
-    id: UUID
-    owner_id: UUID
+    task_id: int    
+    user_id: int    
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
         from_attributes = True
 
-class TaskUpdate(BaseModel):
-    title: str | None = None
-    description: str | None = None
-    due_date: datetime | None = None
-    is_completed: bool | None = None
+# --- SETTINGS SCHEMAS ---
+class UserSettingBase(BaseModel):
+    theme: str = "light"
+    reminder_days: int = 1 
+    notification_enabled: bool = True 
 
+class UserSettingUpdate(BaseModel):
+    theme: Optional[str] = None
+    reminder_days: Optional[int] = None
+    notification_enabled: Optional[bool] = None
+
+class UserSetting(UserSettingBase):
+    setting_id: int 
+    user_id: int   
+
+    class Config:
+        from_attributes = True
+
+# --- AUTH & TOKEN ---
 class Token(BaseModel):
     access_token: str
     token_type: str
 
 class TokenData(BaseModel):
-    user_id: str | None = None
+    user_id: Optional[str] = None 
 
-
-class UserSettingBase(BaseModel):
-    theme: str = "light"
-    notify_before_minutes: int = 60
-    is_email_notify: bool = True
-
-class UserSettingUpdate(UserSettingBase):
-    theme: str | None = None
-    notify_before_minutes: int | None = None
-    is_email_notify: bool | None = None
-
-class UserSetting(UserSettingBase):
-    id: int
-    user_id: UUID
-
-    class Config:
-        from_attributes = True
-
+# --- NOTIFICATION (ฟีเจอร์ใหม่) ---
 class Notification(BaseModel):
-    task_id: UUID
-    title: str
-    description: str | None = None
-    due_date: datetime
+    notification_id: int
+    user_id: int
+    task_id: int
     message: str
-    is_completed: bool
+    notify_date: datetime
+    is_read: bool
+    is_sent: bool
 
     class Config:
         from_attributes = True

@@ -2,35 +2,36 @@ from sqlalchemy.orm import Session
 from app.model import models
 from app.schemas import schemas
 from app.api.v1 import auth
-import uuid
 
 def get_user_by_email(db: Session, email: str):
     return db.query(models.User).filter(models.User.email == email).first()
 
 def create_user(db: Session, user: schemas.UserCreate):
-    # Use direct bcrypt hashing from auth module
     hashed_password = auth.get_password_hash(user.password)
-    db_user = models.User(email=user.email, hashed_password=hashed_password)
+    db_user = models.User(
+        email=user.email, 
+        password_hash=hashed_password,
+        name=user.name 
+    )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
 
-def get_user_tasks(db: Session, user_id: uuid.UUID):
-    return db.query(models.Task).filter(models.Task.owner_id == user_id).all()
+def get_user_tasks(db: Session, user_id: int): 
+    return db.query(models.Task).filter(models.Task.user_id == user_id).all()
 
-def create_user_task(db: Session, task: schemas.TaskCreate, user_id: uuid.UUID):
-    db_task = models.Task(**task.model_dump(), owner_id=user_id)
+def create_user_task(db: Session, task: schemas.TaskCreate, user_id: int): 
+    db_task = models.Task(**task.model_dump(), user_id=user_id)
     db.add(db_task)
     db.commit()
     db.refresh(db_task)
     return db_task
 
-def update_task(db: Session, task_id: uuid.UUID, task_update: schemas.TaskUpdate, user_id: uuid.UUID):
-
+def update_task(db: Session, task_id: int, task_update: schemas.TaskUpdate, user_id: int):
     db_task = db.query(models.Task).filter(
-        models.Task.id == task_id, 
-        models.Task.owner_id == user_id
+        models.Task.task_id == task_id, 
+        models.Task.user_id == user_id
     ).first()
     
     if not db_task:
@@ -44,10 +45,10 @@ def update_task(db: Session, task_id: uuid.UUID, task_update: schemas.TaskUpdate
     db.refresh(db_task)
     return db_task
 
-def delete_task(db: Session, task_id: uuid.UUID, user_id: uuid.UUID):
+def delete_task(db: Session, task_id: int, user_id: int):
     db_task = db.query(models.Task).filter(
-        models.Task.id == task_id, 
-        models.Task.owner_id == user_id
+        models.Task.task_id == task_id, 
+        models.Task.user_id == user_id
     ).first()
     
     if db_task:
@@ -56,14 +57,14 @@ def delete_task(db: Session, task_id: uuid.UUID, user_id: uuid.UUID):
         return True
     return False
 
-def get_user_settings(db: Session, user_id: uuid.UUID):
+def get_user_settings(db: Session, user_id: int):
     return db.query(models.UserSetting).filter(models.UserSetting.user_id == user_id).first()
 
-def update_user_settings(db: Session, settings: schemas.UserSettingUpdate, user_id: uuid.UUID):
+def update_user_settings(db: Session, settings: schemas.UserSettingUpdate, user_id: int):
     db_setting = db.query(models.UserSetting).filter(models.UserSetting.user_id == user_id).first()
     
     if not db_setting:
-        db_setting = models.UserSetting(**settings.model_dump(), user_id=user_id)
+        db_setting = models.UserSetting(**settings.model_dump(exclude_unset=True), user_id=user_id)
         db.add(db_setting)
     else:
         update_data = settings.model_dump(exclude_unset=True)
