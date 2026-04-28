@@ -211,3 +211,222 @@ function init() {
 
 //run initial function
 init();
+
+
+
+//-----------------(setting)-----------------------
+/* =============================================
+   ⚙️  CONFIG — แก้ตรงนี้เมื่อรู้ URL จริง
+============================================= */
+const API_BASE = 'http://localhost:8000';   // ← เปลี่ยนเป็น URL จริงตรงนี้
+const TOKEN_KEY = 'token';                  // ← key ที่เก็บ token ใน localStorage
+
+/* =============================================
+   HELPERS
+============================================= */
+function getToken() {
+    return localStorage.getItem(TOKEN_KEY);
+}
+
+function authHeaders() {
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`
+    };
+}
+
+function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'show ' + type;
+    clearTimeout(t._tid);
+    t._tid = setTimeout(() => { t.className = ''; }, 2800);
+}
+
+/* =============================================
+   NAVIGATION
+============================================= */
+function GoToHome() {
+    window.location.href = 'main.html';
+}
+
+function GoToSetting() {
+    window.location.href = 'setting.html';
+}
+
+function switchTab(tab) {
+    ['account', 'theme', 'reminder'].forEach(t => {
+        document.getElementById('nav-' + t).classList.remove('active');
+        document.getElementById('content-' + t).classList.remove('active');
+    });
+    document.getElementById('nav-' + tab).classList.add('active');
+    document.getElementById('content-' + tab).classList.add('active');
+    localStorage.setItem('infiniteAppActiveTab', tab);
+}
+
+/* =============================================
+   THEME
+============================================= */
+function setTheme(mode) {
+    document.body.classList.toggle('dark-theme', mode === 'dark');
+    document.getElementById('theme-status-text').textContent =
+        mode === 'dark' ? 'Dark' : 'Light';
+    document.getElementById('sw-light').classList.toggle('active', mode !== 'dark');
+    document.getElementById('sw-dark').classList.toggle('active',  mode === 'dark');
+    localStorage.setItem('infiniteAppTheme', mode);
+}
+
+/* =============================================
+   LOAD USER DATA FROM API
+   FastAPI endpoint ที่ต้องการ:
+   GET /users/me  → { first_name, middle_name, last_name, email }
+   Header: Authorization: Bearer <token>
+============================================= */
+async function loadUserData() {
+    const token = getToken();
+    if (!token) {
+        // ถ้าไม่มี token ให้กลับไป login
+        window.location.href = 'signup.html';
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_BASE}/users/me`, {
+            method: 'GET',
+            headers: authHeaders()
+        });
+
+        if (res.status === 401) {
+            // Token หมดอายุ
+            localStorage.removeItem(TOKEN_KEY);
+            window.location.href = 'signup.html';
+            return;
+        }
+
+        if (!res.ok) throw new Error('Failed to load user data');
+
+        const user = await res.json();
+
+        // กรอกข้อมูลลง form
+        document.getElementById('input-firstname').value   = user.first_name   || '';
+        document.getElementById('input-middlename').value  = user.middle_name  || '';
+        document.getElementById('input-lastname').value    = user.last_name    || '';
+        document.getElementById('input-email').value       = user.email        || '';
+
+        // ถ้ามีรูป profile
+        if (user.profile_picture) {
+            const preview = document.getElementById('avatar-preview');
+            preview.innerHTML = `<img src="${user.profile_picture}" alt="avatar">`;
+        }
+
+    } catch (err) {
+        console.error('loadUserData error:', err);
+        // ถ้า backend ยังไม่พร้อม → โหลดจาก localStorage แทน (fallback)
+        const saved = JSON.parse(localStorage.getItem('userProfile') || '{}');
+        document.getElementById('input-firstname').value  = saved.first_name  || '';
+        document.getElementById('input-middlename').value = saved.middle_name || '';
+        document.getElementById('input-lastname').value   = saved.last_name   || '';
+        document.getElementById('input-email').value      = saved.email       || '';
+    }
+}
+
+/* =============================================
+   SAVE ACCOUNT
+   FastAPI endpoint ที่ต้องการ:
+   PUT /users/me  → body: { first_name, middle_name, last_name, email }
+   Header: Authorization: Bearer <token>
+============================================= */
+async function saveAccount() {
+    const btn = document.getElementById('save-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+
+    const body = {
+        first_name:   document.getElementById('input-firstname').value.trim(),
+        middle_name:  document.getElementById('input-middlename').value.trim(),
+        last_name:    document.getElementById('input-lastname').value.trim(),
+        email:        document.getElementById('input-email').value.trim(),
+    };
+
+    try {
+        const res = await fetch(`${API_BASE}/users/me`, {
+            method: 'PUT',
+            headers: authHeaders(),
+            body: JSON.stringify(body)
+        });
+
+        if (!res.ok) throw new Error('Save failed');
+
+        // บันทึก fallback ใน localStorage ด้วย
+        localStorage.setItem('userProfile', JSON.stringify(body));
+        showToast('✅ Saved successfully!', 'success');
+
+    } catch (err) {
+        console.error('saveAccount error:', err);
+        // Fallback: บันทึกแค่ localStorage ก่อน (ใช้ได้เมื่อ backend ยังไม่พร้อม)
+        localStorage.setItem('userProfile', JSON.stringify(body));
+        showToast('⚠️ Saved locally (backend not connected yet)', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save changes';
+    }
+}
+
+/* =============================================
+   AVATAR PREVIEW
+============================================= */
+function previewAvatar(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    const preview = document.getElementById('avatar-preview');
+    preview.innerHTML = `<img src="${url}" alt="avatar">`;
+    // TODO: upload ไฟล์ไปยัง API ด้วย FormData เมื่อ backend พร้อม
+}
+
+/* =============================================
+   SAVE REMINDER
+============================================= */
+function saveReminder() {
+    const days = document.getElementById('reminder-days').value;
+    localStorage.setItem('reminderDays', days);
+    showToast(`✅ Reminder set to ${days} days`, 'success');
+    // TODO: PUT /users/me/reminder { days_before: days }  เมื่อ backend พร้อม
+}
+
+/* =============================================
+   LOGOUT
+   FastAPI: ปกติแค่ลบ token ฝั่ง client ได้เลย
+   ถ้า backend มี POST /auth/logout ก็เรียกก่อน
+============================================= */
+async function handleLogout() {
+    if (!confirm('Log out?')) return;
+
+    try {
+        // ถ้า FastAPI มี endpoint logout → uncomment บรรทัดนี้
+        // await fetch(`${API_BASE}/auth/logout`, { method:'POST', headers: authHeaders() });
+    } catch (_) {}
+
+    localStorage.removeItem(TOKEN_KEY);
+    window.location.href = 'signup.html';
+}
+
+/* =============================================
+   INIT
+============================================= */
+window.onload = function () {
+    // โหลด theme ที่บันทึกไว้
+    const savedTheme = localStorage.getItem('infiniteAppTheme') || 'light';
+    setTheme(savedTheme);
+
+    // โหลด tab ที่บันทึกไว้
+    const savedTab = localStorage.getItem('infiniteAppActiveTab') || 'account';
+    switchTab(savedTab);
+
+    // โหลด reminder
+    const savedDays = localStorage.getItem('reminderDays') || '3';
+    document.getElementById('reminder-days').value = savedDays;
+
+    // โหลดข้อมูล user จาก API
+    loadUserData();
+};
