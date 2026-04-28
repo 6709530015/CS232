@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="login-card">
+
+        <div class="logo-section">
+            <div class="infinity-icon">∞</div>
+            <h2>INFINITE</h2>
+        </div>
+
+            <form id="loginForm">
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="email" placeholder="example@dome.tu.ac.th" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="password" required>
+                </div>
+
+                <button type="submit" class="sign-in-btn">Login</button>
+            </form>
+            <button id="signupBtn" class="sign-in-btn" type="button">Sign Up</button>
+            <div id="messageBox" style="display: none; margin-top: 15px; padding: 12px; border-radius: 5px; text-align: center; font-weight: bold;"></div>
+        </div>
+    </div>
+
+    <script>
+        if (localStorage.getItem('token')) {
+            window.location.href = 'main.html';
+        }
+
+        const messageBox = document.getElementById('messageBox');
+
+        async function showMessage(text, color) {
+            messageBox.textContent = text;
+            messageBox.style.backgroundColor = color;
+            messageBox.style.color = 'white';
+            messageBox.style.display = 'block';
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        username: email,
+                        password: password,
+                    }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('token', data.access_token);
+                    await showMessage('Login successful! Redirecting...', '#4CAF50');
+                    setTimeout(() => window.location.href = 'main.html', 800);
+                } else {
+                    const error = await response.json();
+                    await showMessage(error.detail || 'Login failed', '#f44336');
+                }
+            } catch (error) {
+                await showMessage('Network error: ' + error.message, '#f44336');
+            }
+        });
+
+        document.getElementById('signupBtn').addEventListener('click', async () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                await showMessage('Please fill in email and password', '#ff9800');
+                return;
+            }
+
+            try {
+                const response = await fetch('/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password,
+                        name: email.split('@')[0],
+                    }),
+                });
+
+                if (response.ok) {
+                    await showMessage('Signup successful! Logging you in...', '#4CAF50');
+                    setTimeout(async () => {
+                        try {
+                            const loginResponse = await fetch('/login', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                },
+                                body: new URLSearchParams({
+                                    username: email,
+                                    password: password,
+                                }),
+                            });
+
+                            if (loginResponse.ok) {
+                                const loginData = await loginResponse.json();
+                                localStorage.setItem('token', loginData.access_token);
+                                await showMessage('Login successful! Redirecting...', '#4CAF50');
+                                setTimeout(() => window.location.href = 'main.html', 800);
+                            } else {
+                                await showMessage('Signup succeeded. Please login manually.', '#2196F3');
+                            }
+                        } catch (error) {
+                            await showMessage('Signup succeeded. Please login manually.', '#2196F3');
+                        }
+                    }, 600);
+                } else {
+                    const error = await response.json();
+                    await showMessage(error.detail || 'Signup failed', '#f44336');
+                }
+            } catch (error) {
+                await showMessage('Network error: ' + error.message, '#f44336');
+            }
+        });
+    </script>
+</body>
+
+</html>
