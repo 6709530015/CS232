@@ -19,9 +19,10 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 
+# Proper async context manager
 async def get_db():
-    async with AsyncSession(engine) as session:
+    async with SessionLocal() as session:
         try:
             yield session
         finally:
-            await session.close()
+            await session.close()  # ← await is required

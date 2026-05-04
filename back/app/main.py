@@ -30,7 +30,8 @@ if not os.path.exists(UPLOAD_DIR):
 
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
-models.Base.metadata.create_all(bind=database.engine)
+# Temporarily disable until we use proper migrations
+# models.Base.metadata.create_all(bind=database.engine)
 
 @app.get("/")
 def read_root():
