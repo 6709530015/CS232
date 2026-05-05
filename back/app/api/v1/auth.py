@@ -3,7 +3,8 @@ from datetime import datetime, timedelta, timezone
 from jose import jwt, JWTError
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.model import models
 from app.database import database
 from app.schemas import schemas
@@ -39,25 +40,34 @@ def create_access_token(data: dict):
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-def get_current_user(db: Session = Depends(database.get_db), token: str = Depends(oauth2_scheme)):
+async def get_current_user(
+    db: AsyncSession = Depends(database.get_db),
+    token: str = Depends(oauth2_scheme)
+):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id_str: str = payload.get("sub")
+
         if user_id_str is None:
             raise credentials_exception
-        
-        user_id = int(user_id_str) 
-        
+
+        user_id = int(user_id_str)
+
     except (JWTError, ValueError):
         raise credentials_exception
-    
-    user = db.query(models.User).filter(models.User.user_id == user_id).first()
-    
+
+    result = await db.execute(
+        select(models.User).where(models.User.user_id == user_id)
+    )
+    user = result.scalar_one_or_none()
+
     if user is None:
         raise credentials_exception
+
     return user
