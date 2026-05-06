@@ -1,34 +1,27 @@
+# 1. Use a standard Python image
 FROM python:3.11-slim
 
+# 2. Set the working directory inside the container
 WORKDIR /app
 
-# Copy dependency file
-COPY pyproject.toml .
+# 3.1 Install curl (needed for uv installer)
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
-# Install core dependencies first
-RUN pip install --no-cache-dir --timeout=1000 \
-    fastapi>=0.109.0 \
-    uvicorn[standard]>=0.27.0
+# 3.2 Install uv
+RUN curl -Ls https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.local/bin:$PATH"
 
-# Install database packages (these might be causing the hang)
-RUN pip install --no-cache-dir --timeout=1000 \
-    sqlalchemy>=2.0.25 \
-    PyMySQL>=1.1.0 \
-    asyncmy>=0.7.0
+# 4. Copy our dependency files first 
+COPY pyproject.toml lock.uv .
 
-# Install remaining dependencies
-RUN pip install --no-cache-dir --timeout=1000 \
-    pydantic[email]>=2.6.0 \
-    pydantic-settings>=2.1.0 \
-    python-jose[cryptography]>=3.3.0 \
-    passlib[bcrypt]>=1.7.4 \
-    python-multipart>=0.0.6
+# 5. Install the libraries
+RUN uv sync --frozen --no-cache
 
-# Copy all code
+# 6. Copy all our code into the container
 COPY . .
 
-# Expose port
+# 7. Expose the port FastAPI will run on
 EXPOSE 8000
 
-# Run the app
-CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# 8. The command to start our backend!
+CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
