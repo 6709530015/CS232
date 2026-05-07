@@ -11,6 +11,11 @@ from app.database import database
 from app.schemas import schemas
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional
+import boto3 #for SNS
+
+sns = boto3.client('sns', region_name='us-east-1')
+#must change account-id
+SNS_TOPIC_ARN = 'arn:aws:sns:us-east-1:account-id:DeadlineNotifications'
 
 app = FastAPI(title="Infinite Website")
 
@@ -43,7 +48,16 @@ def signup(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
     db_user = crud.get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    return crud.create_user(db=db, user=user)
+        
+    new_user = crud.create_user(db=db, user=user)
+
+    # Subscribe their email to SNS topic
+    sns.subscribe(
+        TopicArn=SNS_TOPIC_ARN,
+        Protocol='email',
+        Endpoint=user.email
+    )
+    return new_user
 
 @app.post("/login", response_model=schemas.Token)
 def login(db: Session = Depends(database.get_db), form_data: OAuth2PasswordRequestForm = Depends()):
