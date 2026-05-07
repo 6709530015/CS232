@@ -7,8 +7,12 @@ WORKDIR /app
 # 3.1 Set PATH for uv before installing
 ENV PATH="/root/.local/bin:$PATH"
 
-# 3.2 Install curl and uv
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+# 3.2 Install curl (needed for uv installer)
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# 3.3 Install curl and uv
 RUN curl -Ls https://astral.sh/uv/install.sh | sh
 
 # 4. Copy our dependency files first 
