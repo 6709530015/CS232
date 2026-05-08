@@ -13,8 +13,15 @@ from datetime import datetime, timezone, timedelta
 from typing import List, Optional
 import boto3 #for SNS
 
-sns = boto3.client('sns', region_name='us-east-1')
-#must change account-id
+sns = boto3.client(
+    'sns',
+    region_name=os.getenv('AWS_REGION', 'us-east-1'),
+    aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
+    aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
+    aws_session_token=os.getenv('AWS_SESSION_TOKEN')  # ← add this
+)
+
+#must change to match with SNS's ARN
 SNS_TOPIC_ARN = 'arn:aws:sns:us-east-1:account-id:DeadlineNotifications'
 
 app = FastAPI(title="Infinite Website")
@@ -52,11 +59,16 @@ def signup(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
     new_user = crud.create_user(db=db, user=user)
 
     # Subscribe their email to SNS topic
-    sns.subscribe(
-        TopicArn=SNS_TOPIC_ARN,
-        Protocol='email',
-        Endpoint=user.email
-    )
+    try:
+        sns.subscribe(
+            TopicArn=SNS_TOPIC_ARN,
+            Protocol='email',
+            Endpoint=user.email
+        )
+        print(f"SNS subscription sent to {user.email}")
+    except Exception as e:
+        print(f"SNS subscription failed: {e}")  
+
     return new_user
 
 @app.post("/login", response_model=schemas.Token)
