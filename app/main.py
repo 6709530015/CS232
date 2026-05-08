@@ -8,12 +8,13 @@ from app.api.v1 import auth
 from app.core import crud
 from app.database import database
 from app.schemas import schemas
+from app.services.sns import subscribe_user_to_sns
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional
 
 app = FastAPI(title="Infinite Website")
 
-# --- SETUP STATIC FILES (สำหรับฟีเจอร์แนบงาน) ---
+# Set static folder เอาไว้แนบงาน
 UPLOAD_DIR = "uploads"
 if not os.path.exists(UPLOAD_DIR):
     os.makedirs(UPLOAD_DIR)
@@ -26,13 +27,19 @@ models.Base.metadata.create_all(bind=database.engine)
 def read_root():
     return {"message": "Welcome to Infinite Website API! 🚀"}
 
-# --- AUTH ROUTES ---
+# authentication routes
 @app.post("/signup", response_model=schemas.User)
 def signup(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
     db_user = crud.get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    return crud.create_user(db=db, user=user)
+    
+    new_user = crud.create_user(db=db, user=user)
+    
+    # Trigger AWS SNS Subscription
+    subscribe_user_to_sns(user.email)
+    
+    return new_user
 
 @app.post("/login", response_model=schemas.Token)
 def login(db: Session = Depends(database.get_db), form_data: OAuth2PasswordRequestForm = Depends()):
@@ -45,7 +52,7 @@ def login(db: Session = Depends(database.get_db), form_data: OAuth2PasswordReque
     access_token = auth.create_access_token(data={"sub": str(user.user_id)})
     return {"access_token": access_token, "token_type": "bearer"}
 
-# --- TASK ROUTES ---
+# task routes
 @app.get("/tasks", response_model=List[schemas.Task])
 def read_tasks(db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
     return crud.get_user_tasks(db, user_id=current_user.user_id)
@@ -95,7 +102,7 @@ async def upload_task_file(
     db.refresh(db_task)
     return db_task
 
-# --- SETTINGS ROUTES ---
+# settings routes
 @app.get("/settings", response_model=schemas.UserSetting)
 def read_settings(db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
     settings = crud.get_user_settings(db, user_id=current_user.user_id)
@@ -108,7 +115,7 @@ def read_settings(db: Session = Depends(database.get_db), current_user: models.U
 def update_settings(settings_in: schemas.UserSettingUpdate, db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
     return crud.update_user_settings(db, settings=settings_in, user_id=current_user.user_id)
 
-# --- NOTIFICATIONS ROUTE ---
+# notification routes
 @app.get("/notifications") 
 def read_notifications(db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
     settings = crud.get_user_settings(db, user_id=current_user.user_id)
