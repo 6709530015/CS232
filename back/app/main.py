@@ -2,73 +2,43 @@ import os
 from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
-from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from app.model import models
 from app.api.v1 import auth
 from app.core import crud
 from app.database import database
 from app.schemas import schemas
+from app.services.sns import subscribe_user_to_sns
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional
-import boto3 #for SNS
-
-sns = boto3.client(
-    'sns',
-    region_name=os.getenv('AWS_REGION', 'us-east-1'),
-    aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
-    aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
-    aws_session_token=os.getenv('AWS_SESSION_TOKEN')  # ← add this
-)
-
-#must change to match with SNS's ARN
-SNS_TOPIC_ARN = 'arn:aws:sns:us-east-1:account-id:DeadlineNotifications'
 
 app = FastAPI(title="Infinite Website")
 
-# --- CORS ---
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "file://"],  # Allow local development
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# --- SETUP STATIC FILES (สำหรับฟีเจอร์แนบงาน) ---
+# Set static folder เอาไว้แนบงาน
 UPLOAD_DIR = "uploads"
 if not os.path.exists(UPLOAD_DIR):
     os.makedirs(UPLOAD_DIR)
 
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
-# Temporarily disable until we use proper migrations
-# models.Base.metadata.create_all(bind=database.engine)
+models.Base.metadata.create_all(bind=database.engine)
 
 @app.get("/")
 def read_root():
     return {"message": "Welcome to Infinite Website API! 🚀"}
 
-# --- AUTH ROUTES ---
+# authentication routes
 @app.post("/signup", response_model=schemas.User)
 def signup(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
     db_user = crud.get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-        
+    
     new_user = crud.create_user(db=db, user=user)
-
-    # Subscribe their email to SNS topic
-    try:
-        sns.subscribe(
-            TopicArn=SNS_TOPIC_ARN,
-            Protocol='email',
-            Endpoint=user.email
-        )
-        print(f"SNS subscription sent to {user.email}")
-    except Exception as e:
-        print(f"SNS subscription failed: {e}")  
-
+    
+    # Trigger AWS SNS Subscription
+    subscribe_user_to_sns(user.email)
+    
     return new_user
 
 @app.post("/login", response_model=schemas.Token)
@@ -82,7 +52,7 @@ def login(db: Session = Depends(database.get_db), form_data: OAuth2PasswordReque
     access_token = auth.create_access_token(data={"sub": str(user.user_id)})
     return {"access_token": access_token, "token_type": "bearer"}
 
-# --- TASK ROUTES ---
+# task routes
 @app.get("/tasks", response_model=List[schemas.Task])
 def read_tasks(db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
     return crud.get_user_tasks(db, user_id=current_user.user_id)
@@ -132,7 +102,7 @@ async def upload_task_file(
     db.refresh(db_task)
     return db_task
 
-# --- SETTINGS ROUTES ---
+# settings routes
 @app.get("/settings", response_model=schemas.UserSetting)
 def read_settings(db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
     settings = crud.get_user_settings(db, user_id=current_user.user_id)
@@ -145,7 +115,7 @@ def read_settings(db: Session = Depends(database.get_db), current_user: models.U
 def update_settings(settings_in: schemas.UserSettingUpdate, db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
     return crud.update_user_settings(db, settings=settings_in, user_id=current_user.user_id)
 
-# --- NOTIFICATIONS ROUTE ---
+# notification routes
 @app.get("/notifications") 
 def read_notifications(db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
     settings = crud.get_user_settings(db, user_id=current_user.user_id)
@@ -173,8 +143,3 @@ def read_notifications(db: Session = Depends(database.get_db), current_user: mod
         }
         for task in tasks
     ]
-
-# --- SERVE FRONTEND (MUST BE LAST!) ---
-front_path = os.path.join(os.path.dirname(__file__), "..", "..", "front")
-if os.path.exists(front_path):
-    app.mount("/", StaticFiles(directory=front_path, html=True), name="frontend")
