@@ -86,7 +86,7 @@ async def delete_task(db: AsyncSession, task_id: int, user_id: int):
     db_task = result.scalar_one_or_none()
 
     if db_task:
-        await db.delete(db_task)
+        db.delete(db_task)
         await db.commit()
         return True
 

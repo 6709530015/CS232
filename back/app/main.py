@@ -2,39 +2,46 @@ import os
 from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
-from sqlalchemy.orm import Session
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.model import models
 from app.api.v1 import auth
 from app.core import crud
 from app.database import database
 from app.schemas import schemas
-from app.services.sns import subscribe_user_to_sns
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional
 
 app = FastAPI(title="Infinite Website")
 
-# Set static folder เอาไว้แนบงาน
+# --- CORS MIDDLEWARE (Must be before routes) ---
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "file://"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# --- SETUP STATIC FILES ---
 UPLOAD_DIR = "uploads"
 if not os.path.exists(UPLOAD_DIR):
     os.makedirs(UPLOAD_DIR)
 
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
-models.Base.metadata.create_all(bind=database.engine)
-
 @app.get("/")
 def read_root():
     return {"message": "Welcome to Infinite Website API! 🚀"}
 
-# authentication routes
+# --- AUTH ROUTES ---
 @app.post("/signup", response_model=schemas.User)
-def signup(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
-    db_user = crud.get_user_by_email(db, email=user.email)
+async def signup(user: schemas.UserCreate, db: AsyncSession = Depends(database.get_db)):
+    db_user = await crud.get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     
-    new_user = crud.create_user(db=db, user=user)
+    new_user = await crud.create_user(db=db, user=user)
     
     # Trigger AWS SNS Subscription
     subscribe_user_to_sns(user.email)
@@ -42,8 +49,8 @@ def signup(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
     return new_user
 
 @app.post("/login", response_model=schemas.Token)
-def login(db: Session = Depends(database.get_db), form_data: OAuth2PasswordRequestForm = Depends()):
-    user = crud.get_user_by_email(db, email=form_data.username)
+async def login(db: AsyncSession = Depends(database.get_db), form_data: OAuth2PasswordRequestForm = Depends()):
+    user = await crud.get_user_by_email(db, email=form_data.username)
     if not user or not auth.verify_password(form_data.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -52,25 +59,25 @@ def login(db: Session = Depends(database.get_db), form_data: OAuth2PasswordReque
     access_token = auth.create_access_token(data={"sub": str(user.user_id)})
     return {"access_token": access_token, "token_type": "bearer"}
 
-# task routes
+# --- TASK ROUTES ---
 @app.get("/tasks", response_model=List[schemas.Task])
-def read_tasks(db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
-    return crud.get_user_tasks(db, user_id=current_user.user_id)
+async def read_tasks(db: AsyncSession = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
+    return await crud.get_user_tasks(db, user_id=current_user.user_id)
 
 @app.post("/tasks", response_model=schemas.Task)
-def create_task(task: schemas.TaskCreate, db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
-    return crud.create_user_task(db=db, task=task, user_id=current_user.user_id)
+async def create_task(task: schemas.TaskCreate, db: AsyncSession = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
+    return await crud.create_user_task(db=db, task=task, user_id=current_user.user_id)
 
 @app.patch("/tasks/{task_id}", response_model=schemas.Task)
-def update_task(task_id: int, task_update: schemas.TaskUpdate, db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
-    db_task = crud.update_task(db, task_id=task_id, task_update=task_update, user_id=current_user.user_id)
+async def update_task(task_id: int, task_update: schemas.TaskUpdate, db: AsyncSession = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
+    db_task = await crud.update_task(db, task_id=task_id, task_update=task_update, user_id=current_user.user_id)
     if not db_task:
         raise HTTPException(status_code=404, detail="Task not found or permission denied")
     return db_task
 
 @app.delete("/tasks/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_task(task_id: int, db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
-    success = crud.delete_task(db, task_id=task_id, user_id=current_user.user_id)
+async def delete_task(task_id: int, db: AsyncSession = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
+    success = await crud.delete_task(db, task_id=task_id, user_id=current_user.user_id)
     if not success:
         raise HTTPException(status_code=404, detail="Task not found")
     return None
@@ -79,13 +86,13 @@ def delete_task(task_id: int, db: Session = Depends(database.get_db), current_us
 async def upload_task_file(
     task_id: int, 
     file: UploadFile = File(...), 
-    db: Session = Depends(database.get_db),
+    db: AsyncSession = Depends(database.get_db),
     current_user: models.User = Depends(auth.get_current_user)
 ):
-    db_task = db.query(models.Task).filter(
+    db_task = (await db.query(models.Task).filter(
         models.Task.task_id == task_id, 
         models.Task.user_id == current_user.user_id
-    ).first()
+    ).first())
     
     if not db_task:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -98,38 +105,38 @@ async def upload_task_file(
         buffer.write(await file.read())
 
     db_task.file_url = f"/uploads/{new_filename}"
-    db.commit()
-    db.refresh(db_task)
+    await db.commit()
+    await db.refresh(db_task)
     return db_task
 
-# settings routes
+# --- SETTINGS ROUTES ---
 @app.get("/settings", response_model=schemas.UserSetting)
-def read_settings(db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
-    settings = crud.get_user_settings(db, user_id=current_user.user_id)
+async def read_settings(db: AsyncSession = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
+    settings = await crud.get_user_settings(db, user_id=current_user.user_id)
     if not settings:
         default_settings = schemas.UserSettingUpdate(theme="light", reminder_days=1)
-        settings = crud.update_user_settings(db, settings=default_settings, user_id=current_user.user_id)
+        settings = await crud.update_user_settings(db, settings=default_settings, user_id=current_user.user_id)
     return settings
 
 @app.patch("/settings", response_model=schemas.UserSetting)
-def update_settings(settings_in: schemas.UserSettingUpdate, db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
-    return crud.update_user_settings(db, settings=settings_in, user_id=current_user.user_id)
+async def update_settings(settings_in: schemas.UserSettingUpdate, db: AsyncSession = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
+    return await crud.update_user_settings(db, settings=settings_in, user_id=current_user.user_id)
 
-# notification routes
-@app.get("/notifications") 
-def read_notifications(db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
-    settings = crud.get_user_settings(db, user_id=current_user.user_id)
+# --- NOTIFICATIONS ROUTE ---
+@app.get("/notifications")
+async def read_notifications(db: AsyncSession = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
+    settings = await crud.get_user_settings(db, user_id=current_user.user_id)
     days_to_notify = settings.reminder_days if settings else 1
 
     now = datetime.now(timezone.utc)
     notify_until = now + timedelta(days=days_to_notify)
 
-    tasks = db.query(models.Task).filter(
+    tasks = (await db.query(models.Task).filter(
         models.Task.user_id == current_user.user_id,
         models.Task.status == "pending",
         models.Task.due_date != None,
         models.Task.due_date <= notify_until
-    ).all()
+    ).all())
 
     return [
         {
