@@ -169,7 +169,11 @@ function renderEverything() {
             <div class="task-info"><span class="circle"></span> ${task.name}</div>
             <div class="task-meta">
                 <span>${d}/${m}/${y}</span>
-                <span class="delete-icon">🗑️</span>
+                <div class="task-actions">
+                        <span class="icon delete-btn" onclick="deleteTask('${task.name}')">
+                            <i class="fa-regular fa-trash-can"></i>
+                        </span>
+                </div>
             </div>
         `;
 
@@ -263,6 +267,25 @@ if (typeof renderEverything === "function") {
     renderEverything();
 } else {
     refreshTaskList(); 
+}
+// ฟังก์ชันลบ Task
+function deleteTask(taskName) {
+    if (confirm(`คุณต้องการลบ " ${taskName} " ใช่หรือไม่?`)) {
+        // 1. กรองเอาเฉพาะ Task ที่ชื่อไม่ตรงกับตัวที่เลือก (ลบออกจาก Array)
+        allTasks = allTasks.filter(task => task.name !== taskName);
+
+        // 2. สั่งวาดรายการใหม่ทันที
+        if (typeof renderEverything === "function") {
+            renderEverything();
+        } else {
+            refreshTaskList();
+        }
+
+        // 3. (Optional) ถ้ามีแจ้งเตือน Toast ให้ใช้ด้วย
+        if (typeof showToast === "function") {
+            showToast("🗑️ ลบรายการสำเร็จ", "success");
+        }
+    }
 }
 function init() {
     //all task have to be completed

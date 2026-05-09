@@ -604,6 +604,18 @@ textarea {
     color: var(--main-text);
     transition: background-color .3s, border-color .3s, color .3s;
 }
+/*=============== Delete Task ===================*/
+.delete-btn {
+    cursor: pointer;
+    color: var(--sub-text); /* สีปกติ */
+    transition: color 0.2s, transform 0.2s;
+    padding: 5px;
+}
+
+.delete-btn:hover {
+    color: #F65C5C; /* กลายเป็นสีแดงตอนเอาเมาส์ชี้ */
+    transform: scale(1.1); /* ขยายใหญ่ขึ้นนิดนึง */
+}
 
 /* =============================================
    SETTINGS CARD
