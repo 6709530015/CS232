@@ -246,7 +246,42 @@ html {
     font-weight: bold;
     letter-spacing: 2px;
 }
+/* จัดการตำแหน่งโลโก้ที่อยู่นอกกล่อง */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px; /* เว้นระยะห่างก่อนถึงกล่องขาว */
+    width: 100%;
+}
 
+.corner-image {
+    width: 150px; /* ปรับขนาดโลโก้ตาม ref */
+    height: auto;
+    /* ถ้าอยากให้ดูมีมิติเหมือนในรูปเกยๆ อาจจะใส่เงาเพิ่มได้ */
+    filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+/* ปรับระยะห่างของหน้าจอให้ดูสมดุล */
+.sign-in-page {
+    display: flex;
+    flex-direction: column; /* จัดเรียงแบบบนลงล่าง */
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(to bottom, var(--login-bg-start), var(--login-bg-end));
+}
+
+.login-card {
+    /* ไม่ต้องใส่ margin-top เยอะแล้วเพราะมี login-container ช่วยดันไว้ */
+    margin-top: 0; 
+}
+.logo-on-top {
+    display: flex;
+    justify-content: center;
+    margin-top: -60px;
+    margin-bottom: 20px;
+}
 /* =============================================
    SIDEBAR (shared / settings extension)
 ============================================= */
