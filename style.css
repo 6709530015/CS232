@@ -188,6 +188,30 @@ html {
     /*overflow: hidden;*/
 }
 
+/* style.css */
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-wrapper input {
+    padding-right: 45px; /* กันไม่ให้ตัวหนังสือทับไอคอน */
+}
+
+.password-wrapper i {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: var(--sub-text); /* ใช้สีตาม Design Token ของคุณ */
+    transition: color 0.3s;
+}
+
+.password-wrapper i:hover {
+    color: var(--btn-primary); /* เปลี่ยนสีเมื่อเอาเมาส์ไปชี้ */
+}
+
 /*================Main==================*/
 /*Sidebar*/
 .wrapper {

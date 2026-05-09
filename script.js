@@ -1,3 +1,67 @@
+/*===================== Sign up ================================*/
+const signInBtn = document.getElementById("signInBtn");
+
+if (signInBtn) {
+    signInBtn.onclick = async function () {
+        const email = document.getElementById("loginEmail").value;
+        const password = document.getElementById("loginPassword").value;
+
+        // เช็คเบื้องต้นว่ากรอกข้อมูลครบไหม
+        if (!email || !password) {
+            showToast("⚠️ กรุณากรอกอีเมลและรหัสผ่านให้ครบถ้วน", "error");
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE}/token`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/x-www-form-urlencoded' // ตรวจสอบว่าตรงกับ Backend
+            },
+            body: new URLSearchParams({
+                'username': email, // FastAPI ใช้ field นี้เป็นมาตรฐาน
+                'password': password
+            }).toString() // เพิ่ม .toString() เพื่อความชัวร์ในการส่ง
+        });
+
+            if (response.ok) {
+                // กรณีรหัสผ่านถูกต้อง
+                const data = await response.json();
+                localStorage.setItem(TOKEN_KEY, data.access_token);
+                showToast("✅ เข้าสู่ระบบสำเร็จ!", "success");
+                
+                setTimeout(() => {
+                    window.location.href = "main.html";
+                }, 1000);
+
+            } else {
+                // กรณีรหัสผ่านผิด หรือ User ไม่มีในระบบ
+                const errorData = await response.json();
+                // errorData.detail คือข้อความที่ส่งมาจาก FastAPI เช่น "Incorrect username or password"
+                showToast(`❌ ${errorData.detail || "รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่"}`, "error");
+            }
+
+        } catch (error) {
+            console.error("Login Error:", error);
+            showToast("🌐 ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", "error");
+        }
+    };
+}
+//Toggle password
+const togglePassword = document.getElementById('togglePassword');
+const passwordInput = document.getElementById('loginPassword');
+
+if (togglePassword && passwordInput) {
+    togglePassword.addEventListener('click', function () {
+        // สลับ type ระหว่าง password และ text
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        // สลับไอคอนระหว่าง eye และ eye-slash
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    });
+}
 /*============================= intial info ========================*/
 let allTasks = [
     { name: "CS222 Algorithm", date: "2026-03-27", detail: "Focus on Dynamic Programming" },
