@@ -1,18 +1,126 @@
-/*==========Sign in=================*/
+/* =============================================
+   DESIGN TOKENS — แก้ค่าที่นี่ที่เดียวพอ
+============================================= */
+:root {
+    --notification-red: #F65C5C;
+    --main-text:        #525BB4;
+    --sub-text:         #8c94d6;
+    --sidebar-bg:       #7FBDFF;
+    --bg-color:         #F3F5FF;
+    --card-bg:          #FAFCFC;
+    --white:            #FFFFFF;
+    --sidebar-active-bg:   #FFFFFF;
+    --sidebar-active-text: #7FBDFF;
+    --input-border:     #8c94d6;
+    --gray-avatar:      #D9D9D9;
+
+    /* Sign in / General */
+    --login-bg-start:   #eef5ff;
+    --login-bg-end:     #a2c7ff;
+    --login-card-bg:    #FFFFFF;
+    --login-label-color:#3b4d8d;
+    --input-bg:         #fcfdfe;
+    --input-border-color: #c0ccda;
+    --btn-primary:      #5b67b7;
+    --btn-primary-hover:#4a54a3;
+
+    /* Calendar */
+    --calendar-bg:      #FFFFFF;
+    --calendar-border:  #999999;
+    --calendar-text:    #4a54a3;
+    --cell-hover-bg:    #7FBDFF;
+    --highlight-bg:     #5b67b7;
+
+    /* Task */
+    --task-card-bg:     #FFFFFF;
+    --task-border:      #5b67b7;
+    --task-meta-color:  #666666;
+    --task-completed-bg:#f9f9f9;
+    --task-completed-border: #cccccc;
+    --task-completed-color:  #888888;
+
+    /* Modal */
+    --modal-bg:         #FFFFFF;
+
+    /* Bottom bar */
+    --bottom-bar-bg:    #aacfff;
+}
+
+body.dark-theme {
+    --main-text:        #FFFFFF;
+    --sub-text:         #A0A0A0;
+    --bg-color:         #2D2D2D;
+    --card-bg:          #1E1E1E;
+    --sidebar-active-bg:   #1E1E1E;
+    --sidebar-active-text: #7FBDFF;
+    --input-border:     #555555;
+    --gray-avatar:      #444444;
+
+    /* Sign in / General */
+    --login-bg-start:   #1a1a2e;
+    --login-bg-end:     #16213e;
+    --login-card-bg:    #1E1E1E;
+    --login-label-color:#A0A0A0;
+    --input-bg:         #2D2D2D;
+    --input-border-color: #555555;
+    --btn-primary:      #7FBDFF;
+    --btn-primary-hover:#5ca8f5;
+
+    /* Calendar */
+    --calendar-bg:      #1E1E1E;
+    --calendar-border:  #444444;
+    --calendar-text:    #A0A0A0;
+    --cell-hover-bg:    #3a3a5c;
+    --highlight-bg:     #525BB4;
+
+    /* Task */
+    --task-card-bg:     #1E1E1E;
+    --task-border:      #525BB4;
+    --task-meta-color:  #A0A0A0;
+    --task-completed-bg:#252525;
+    --task-completed-border: #444444;
+    --task-completed-color:  #666666;
+
+    /* Modal */
+    --modal-bg:         #1E1E1E;
+
+    /* Bottom bar */
+    --bottom-bar-bg:    #2a3a55;
+}
+
+/* =============================================
+   RESET & BASE
+============================================= */
+* { margin: 0; padding: 0; box-sizing: border-box;
+        font-family: sans-serif;
+    /*font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;*/ }
+
 body {
+    display: flex;
+    height: 100vh;
+    background-color: var(--bg-color);
+    color: var(--main-text);
+    overflow: hidden;
+    transition: background-color .3s, color .3s;
+}
+
+/*==========Sign in=================*/
+body.sign-in-page {
     margin: 0;
     height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(180deg, #eef5ff 0%, #a2c7ff 100%);
+    background: linear-gradient(180deg, var(--login-bg-start) 0%, var(--login-bg-end) 100%);
+    transition: background .3s;
 }
 
 .logo-section {
     text-align: center;
-    color: #5b76c8;
+    color: var(--btn-primary);
     margin-bottom: 20px;
+    transition: color .3s;
 }
 
 .infinity-icon {
@@ -21,11 +129,12 @@ body {
 }
 
 .login-card {
-    background: white;
+    background: var(--login-card-bg);
     padding: 40px;
     border-radius: 12px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     width: 350px;
+    transition: background-color .3s;
 }
 
 .input-group {
@@ -34,34 +143,37 @@ body {
 
 .input-group label {
     display: block;
-    color: #3b4d8d;
+    color: var(--login-label-color);
     font-weight: bold;
     margin-bottom: 8px;
+    transition: color .3s;
 }
 
 .input-group input {
     width: 100%;
     padding: 12px;
-    border: 1px solid #c0ccda;
+    border: 1px solid var(--input-border-color);
     border-radius: 8px;
     box-sizing: border-box;
-    background-color: #fcfdfe;
+    background-color: var(--input-bg);
+    color: var(--main-text);
+    transition: background-color .3s, border-color .3s, color .3s;
 }
 
 .sign-in-btn {
     width: 100%;
     padding: 12px;
-    background-color: #5b67b7;
+    background-color: var(--btn-primary);
     color: white;
     border: none;
     border-radius: 8px;
     font-size: 16px;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: background .3s;
 }
 
 .sign-in-btn:hover {
-    background-color: #4a54a3;
+    background-color: var(--btn-primary-hover);
 }
 
 * {
@@ -86,13 +198,13 @@ html {
 
 .sidebar {
     width: 220px;
-    background-color: #89bfff;
-    color: white;
+    min-width: 190px;
+    background-color: var(--sidebar-bg);
+    color: var(--white);
     display: flex;
     flex-direction: column;
-    justify-content: left;
-    padding: 20px 0;
-    flex-shrink: 0;
+    justify-content: flex-start;
+    transition: background-color .3s;
 }
 
 .logo {
@@ -111,32 +223,73 @@ html {
     letter-spacing: 2px;
 }
 
+/* =============================================
+   SIDEBAR (shared / settings extension)
+============================================= */
+.logo-container {
+    text-align: center;
+    padding: 28px 0 20px;
+    font-weight: bold;
+    font-size: 1rem;
+    letter-spacing: 1px;
+}
+.logo-icon { font-size: 2.2rem; margin-bottom: 4px; }
+
+.menu { list-style: none; display: flex; flex-direction: column; }
+
 .menu-item {
     display: block;
     padding: 12px 20px;
     color: white;
     text-decoration: none;
     font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1rem;
+    transition: background-color .2s, color .2s;
+    border-radius: 0;
 }
-
+.menu-item:hover { background-color: rgba(255, 255, 255, 0.2); }
 .menu-item.active {
-    background-color: rgba(255, 255, 255, 0.4);
+    background-color: var(--sidebar-active-bg);
+    color: var(--sidebar-active-text);
+    font-weight: 600;
 }
 
-.menu-item:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-}
+.sidebar-bottom { margin-bottom: 36px; }
 
-/*===========Calendar============*/
+/* =============================================
+   MAIN CONTENT
+============================================= */
 .main-content {
+    flex: 1;
     flex-grow: 1;
-    background-color: #f0f6ff;
+    background-color: var(--bg-color);
     position: relative;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    padding: 36px 52px;
+    transition: background-color .3s;
 }
 
+.back-link {
+    font-size: 1.1rem;
+    color: var(--main-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    cursor: pointer;
+    width: fit-content;
+    transition: opacity .2s;
+    font-weight: 500;
+}
+.back-link:hover { opacity: .65; }
+
+/*===========Calendar============*/
 .container {
     max-width: 800px;
     margin: 40px auto;
@@ -146,49 +299,54 @@ html {
 
 .calendar-header {
     text-align: center;
-    border: 1px solid #999;
+    border: 1px solid var(--calendar-border);
     width: 100%;
     padding: 10px;
-    background: white;
-    color: #4a54a3;
+    background: var(--calendar-bg);
+    color: var(--calendar-text);
     font-weight: bold;
+    transition: background-color .3s, color .3s, border-color .3s;
 }
 
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     width: 100%;
-    background: white;
-    border-left: 1px solid #999;
-    border-top: 1px solid #999;
+    background: var(--calendar-bg);
+    border-left: 1px solid var(--calendar-border);
+    border-top: 1px solid var(--calendar-border);
+    transition: background-color .3s;
 }
 
 .day-label,
 .date-cell {
-    border-right: 1px solid #999;
-    border-bottom: 1px solid #999;
+    border-right: 1px solid var(--calendar-border);
+    border-bottom: 1px solid var(--calendar-border);
     padding: 15px 5px;
     text-align: center;
     font-size: 13px;
+    transition: border-color .3s, color .3s;
 }
 
 .day-label {
-    color: #4a54a3;
+    color: var(--calendar-text);
     font-weight: bold;
+    transition: color .3s;
 }
 
 .date-cell {
     height: 60px;
-    color: #4a54a3;
+    color: var(--calendar-text);
+    transition: color .3s, background-color .3s;
 }
 
 .date-cell.highlight {
-    background-color: #5b67b7 !important;
+    background-color: var(--highlight-bg) !important;
     color: white !important;
 }
 
 .date-cell.muted {
-    color: #ccc;
+    color: var(--sub-text);
 }
 
 /*=================Task=============*/
@@ -197,14 +355,15 @@ html {
 }
 
 .task-card {
-    background: white;
-    border: 1px solid #5b67b7;
+    background: var(--task-card-bg);
+    border: 1px solid var(--task-border);
     border-radius: 8px;
     padding: 12px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
+    transition: background-color .3s, border-color .3s;
 }
 
 .task-info {
@@ -216,24 +375,28 @@ html {
 .circle {
     width: 18px;
     height: 18px;
-    border: 2px solid #5b67b7;
+    border: 2px solid var(--task-border);
     border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s;
 }
 
 .task-meta {
     display: flex;
     align-items: center;
     gap: 15px;
-    color: #666;
+    color: var(--task-meta-color);
+    transition: color .3s;
 }
 
 .completed-btn {
-    background: #89bfff;
+    background: var(--sidebar-bg);
     color: white;
     border: none;
     padding: 5px 15px;
     border-radius: 5px;
     cursor: pointer;
+    transition: background-color .3s;
 }
 
 .fab {
@@ -242,21 +405,23 @@ html {
     bottom: 80px;
     width: 50px;
     height: 50px;
-    background: #89bfff;
+    background: var(--sidebar-bg);
     color: white;
     border-radius: 50%;
     border: none;
     font-size: 30px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     cursor: pointer;
+    transition: background-color .3s;
 }
 
 .bottom-bar {
-    background: #aacfff;
+    background: var(--bottom-bar-bg);
     text-align: center;
     padding: 10px;
     font-size: 12px;
     color: white;
+    transition: background-color .3s;
 }
 
 .date-cell.clickable {
@@ -265,11 +430,11 @@ html {
 }
 
 .date-cell.clickable:hover {
-    background-color: #7FBDFF;
+    background-color: var(--cell-hover-bg);
 }
 
 .date-cell.highlight-main {
-    background-color: #5b67b7 !important;
+    background-color: var(--highlight-bg) !important;
     color: white !important;
 }
 
@@ -279,19 +444,24 @@ html {
 }
 
 .task-highlight-active {
-    background-color: #7FBDFF !important;
+    background-color: var(--sidebar-bg) !important;
     transition: background-color 0.3s;
 }
 
 .task-card.task-highlight-active:hover {
-    background-color: white !important;
+    background-color: var(--task-card-bg) !important;
+}
+
+.circle:hover {
+    background-color: rgba(91, 103, 183, 0.2);
 }
 
 /*===================completed task=======================*/
 .task-card.completed {
-    background-color: #f9f9f9;
-    border-color: #ccc;
-    color: #888;
+    background-color: var(--task-completed-bg);
+    border-color: var(--task-completed-border);
+    color: var(--task-completed-color);
+    transition: background-color .3s, border-color .3s, color .3s;
 }
 
 .task-card.completed .task-info {
@@ -299,7 +469,7 @@ html {
 }
 
 .task-card.completed .circle {
-    background-color: #5b67b7;
+    background-color: var(--highlight-bg);
     position: relative;
 }
 
@@ -310,15 +480,6 @@ html {
     position: absolute;
     top: -2px;
     left: 2px;
-}
-
-.circle {
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.circle:hover {
-    background-color: rgba(91, 103, 183, 0.2);
 }
 
 /*==============Add task assignment==================*/
@@ -334,12 +495,13 @@ html {
 }
 
 .modal-content {
-    background-color: white;
+    background-color: var(--modal-bg);
     margin: 10% auto;
     padding: 30px;
     border-radius: 15px;
     width: 400px;
     position: relative;
+    transition: background-color .3s;
 }
 
 .close-btn {
@@ -348,22 +510,231 @@ html {
     top: 10px;
     font-size: 28px;
     cursor: pointer;
+    color: var(--main-text);
+    transition: color .3s;
 }
 
 .save-btn {
     width: 100%;
     padding: 10px;
-    background-color: #5b67b7;
+    background-color: var(--btn-primary);
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     margin-top: 10px;
+    transition: background-color .3s;
 }
 
 textarea {
     width: 100%;
-    border: 1px solid #ccc;
+    border: 1px solid var(--input-border);
     border-radius: 5px;
     padding: 8px;
+    background-color: var(--input-bg);
+    color: var(--main-text);
+    transition: background-color .3s, border-color .3s, color .3s;
 }
+
+/* =============================================
+   SETTINGS CARD
+============================================= */
+.settings-card {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    padding: 36px 52px;
+    max-width: 760px;
+    box-shadow: 0 4px 15px rgba(0,0,0,.04);
+    flex: 1;
+    display: none;
+    transition: background-color .3s;
+}
+.settings-card.active {
+    display: block;
+    animation: fadeIn .25s ease;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.card-header { margin-bottom: 28px; }
+.card-header h1 {
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--main-text);
+    transition: color .3s;
+}
+.card-header p {
+    font-size: .88rem;
+    color: var(--sub-text);
+    transition: color .3s;
+}
+
+/* =============================================
+   ACCOUNT FORM
+============================================= */
+.section-title {
+    font-size: 1rem;
+    margin-bottom: 26px;
+    margin-left: 36px;
+    color: var(--main-text);
+    font-weight: 600;
+    transition: color .3s;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 148px 1fr;
+    row-gap: 22px;
+    column-gap: 16px;
+    align-items: center;
+    margin-left: 36px;
+    max-width: 480px;
+}
+.form-label { font-size: .93rem; color: var(--main-text); transition: color .3s; }
+
+.avatar-row { display: flex; align-items: center; gap: 24px; }
+.avatar-circle {
+    width: 56px; height: 56px;
+    background-color: var(--gray-avatar);
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    transition: background-color .3s;
+}
+.avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
+
+.btn-upload {
+    background: transparent;
+    color: var(--main-text);
+    border: 1px solid var(--main-text);
+    padding: 7px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 7px;
+    font-size: .88rem;
+    transition: all .25s;
+}
+.btn-upload:hover {
+    background-color: var(--sidebar-bg);
+    color: var(--white);
+    border-color: var(--sidebar-bg);
+}
+
+.form-input {
+    width: 100%;
+    padding: 9px 14px;
+    border: 1px solid var(--input-border);
+    border-radius: 6px;
+    font-size: .97rem;
+    color: var(--main-text);
+    background-color: transparent;
+    outline: none;
+    transition: border-color .25s, box-shadow .25s, color .3s, background-color .3s;
+}
+.form-input:focus {
+    border-color: var(--sidebar-bg);
+    box-shadow: 0 0 0 2px rgba(127,189,255,.22);
+}
+
+/* Save button */
+.btn-save {
+    margin-top: 28px;
+    margin-left: 36px;
+    padding: 10px 28px;
+    background-color: var(--sidebar-bg);
+    color: var(--white);
+    border: none;
+    border-radius: 6px;
+    font-size: .97rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity .2s, transform .1s;
+    display: flex; align-items: center; gap: 8px;
+}
+.btn-save:hover { opacity: .88; }
+.btn-save:active { transform: scale(.97); }
+.btn-save:disabled { opacity: .5; cursor: not-allowed; }
+
+/* =============================================
+   THEME SECTION
+============================================= */
+.theme-section { margin-left: 28px; }
+.theme-status {
+    font-size: 1.05rem;
+    color: var(--main-text);
+    margin-bottom: 18px;
+    font-weight: 500;
+    transition: color .3s;
+}
+.theme-swatches { display: flex; gap: 22px; }
+.swatch {
+    width: 44px; height: 44px;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,.15);
+    transition: all .2s;
+    border: 3px solid transparent;
+    outline: 3px solid transparent;
+}
+.swatch.light { background-color: #FFFFFF; }
+.swatch.dark  { background-color: #000000; }
+.swatch.active { outline-color: #7FBDFF; border-color: var(--card-bg); }
+
+/* =============================================
+   SET REMINDER SECTION
+============================================= */
+.reminder-section {
+    margin-left: 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+.reminder-section label {
+    font-size: 1rem;
+    color: var(--main-text);
+    transition: color .3s;
+}
+.reminder-input {
+    width: 80px;
+    padding: 9px 14px;
+    border: 1px solid var(--input-border);
+    border-radius: 6px;
+    font-size: 1rem;
+    color: var(--main-text);
+    background-color: transparent;
+    outline: none;
+    text-align: center;
+    transition: border-color .25s, box-shadow .25s, color .3s;
+}
+.reminder-input:focus {
+    border-color: var(--sidebar-bg);
+    box-shadow: 0 0 0 2px rgba(127,189,255,.22);
+}
+
+/* =============================================
+   TOAST NOTIFICATION
+============================================= */
+#toast {
+    position: fixed;
+    bottom: 28px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #333;
+    color: #fff;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-size: .9rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s, transform .3s;
+    z-index: 999;
+}
+#toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+#toast.success { background: #4caf8a; }
+#toast.error   { background: var(--notification-red); }

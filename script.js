@@ -267,14 +267,34 @@ function switchTab(tab) {
 /* =============================================
    THEME
 ============================================= */
+// Function to apply theme
 function setTheme(mode) {
     document.body.classList.toggle('dark-theme', mode === 'dark');
-    document.getElementById('theme-status-text').textContent =
-        mode === 'dark' ? 'Dark' : 'Light';
-    document.getElementById('sw-light').classList.toggle('active', mode !== 'dark');
-    document.getElementById('sw-dark').classList.toggle('active',  mode === 'dark');
+    
+    // Update UI elements only if they exist on the current page
+    const statusText = document.getElementById('theme-status-text');
+    if (statusText) statusText.textContent = mode === 'dark' ? 'Dark' : 'Light';
+    
+    const lightSw = document.getElementById('sw-light');
+    const darkSw = document.getElementById('sw-dark');
+    if (lightSw) lightSw.classList.toggle('active', mode !== 'dark');
+    if (darkSw) darkSw.classList.toggle('active', mode === 'dark');
+    
+    // Save to localStorage
     localStorage.setItem('infiniteAppTheme', mode);
 }
+
+// RUN THIS ON EVERY PAGE LOAD
+(function initTheme() {
+    const savedTheme = localStorage.getItem('infiniteAppTheme');
+    if (savedTheme) {
+        setTheme(savedTheme);
+    } else {
+        // Optional: Check system preference
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        setTheme(prefersDark ? 'dark' : 'light');
+    }
+})();
 
 /* =============================================
    LOAD USER DATA FROM API
