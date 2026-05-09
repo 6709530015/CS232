@@ -283,6 +283,16 @@ html {
 }
 
 .sidebar-bottom { margin-bottom: 36px; }
+.menu-item i {
+    width: 20px; 
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+/* ถ้าต้องการทำจุดสีแดงแจ้งเตือน (Red Dot) เหมือนในรูปภาพที่ส่งมา */
+.fa-bell {
+    position: relative;
+}
 
 /* =============================================
    MAIN CONTENT
