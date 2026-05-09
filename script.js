@@ -434,19 +434,26 @@ async function handleLogout() {
 /* =============================================
    INIT
 ============================================= */
-window.onload = function () {
-    // โหลด theme ที่บันทึกไว้
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Theme is already handled by your IIFE (initTheme), 
+    // but we ensure UI elements match here.
     const savedTheme = localStorage.getItem('infiniteAppTheme') || 'light';
     setTheme(savedTheme);
 
-    // โหลด tab ที่บันทึกไว้
+    // 2. Load Tab
     const savedTab = localStorage.getItem('infiniteAppActiveTab') || 'account';
-    switchTab(savedTab);
+    const navElement = document.getElementById('nav-' + savedTab);
+    if (navElement) {
+        switchTab(savedTab);
+    }
 
-    // โหลด reminder
-    const savedDays = localStorage.getItem('reminderDays') || '3';
-    document.getElementById('reminder-days').value = savedDays;
+    // 3. Load Reminders
+    const reminderInput = document.getElementById('reminder-days');
+    if (reminderInput) {
+        const savedDays = localStorage.getItem('reminderDays') || '3';
+        reminderInput.value = savedDays;
+    }
 
-    // โหลดข้อมูล user จาก API
+    // 4. Load User Data
     loadUserData();
-};
+});
