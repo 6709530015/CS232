@@ -118,5 +118,17 @@
 <div id="toast"></div>
 
 <script src="script.js"></script>
+    <script>
+(function initTheme() {
+    const savedTheme = localStorage.getItem('infiniteAppTheme');
+    if (savedTheme) {
+        setTheme(savedTheme);
+    } else {
+        // Optional: Check system preference
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        setTheme(prefersDark ? 'dark' : 'light');
+    }
+})();
+    </script>
 </body>
 </html>
