@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setting</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+ <!-- ── SIDEBAR ── -->   
+<nav class="sidebar">
+    <div>
+        <div class="logo-container">
+            <div class="logo-icon"><i class="fa-solid fa-infinity"></i></div>
+            <div>INFINITE</div>
+        </div>
+        <ul class="menu">
+            <li id="nav-account" class="menu-item active" onclick="switchTab('account')">
+                <i class="fa-regular fa-circle-user"></i> Account
+            </li>
+            <li id="nav-theme" class="menu-item" onclick="switchTab('theme')">
+                <i class="fa-regular fa-clone"></i> Theme
+            </li>
+            <li id="nav-reminder" class="menu-item" onclick="switchTab('reminder')">
+                <i class="fa-regular fa-clock"></i> Set reminder
+            </li>
+        </ul>
+    </div>
+    <div class="sidebar-bottom">
+        <ul class="menu">
+            <li id="logout-btn" class="menu-item" onclick="handleLogout()">
+                <i class="fa-solid fa-arrow-right-from-bracket" style="transform:scaleX(-1)"></i>
+                Log out
+            </li>
+        </ul>
+    </div>
+</nav>
+ <!-- ── MAIN CONTENT ── -->
+<main class="main-content">
+
+    <div class="back-link" onclick="GoToHome()">
+        <i class="fa-solid fa-angle-left"></i> Setting
+    </div>
+
+    <!-- ACCOUNT CARD -->
+    <div id="content-account" class="settings-card active">
+        <div class="card-header">
+            <h1>Account</h1>
+            <p>Manage your account</p>
+        </div>
+        <h2 class="section-title">Profile</h2>
+        <div class="form-grid">
+            <div class="form-label">Profile Picture:</div>
+            <div class="avatar-row">
+                <div class="avatar-circle" id="avatar-preview">
+                    <i class="fa-regular fa-user" style="font-size:1.5rem;color:var(--sub-text)"></i>
+                </div>
+                <button class="btn-upload" onclick="document.getElementById('avatar-input').click()">
+                    <i class="fa-solid fa-arrow-up-from-bracket"></i> Upload
+                </button>
+                <input type="file" id="avatar-input" accept="image/*" style="display:none" onchange="previewAvatar(event)">
+            </div>
+
+            <div class="form-label">First name:</div>
+            <input type="text" id="input-firstname" class="form-input" placeholder="First name">
+
+            <div class="form-label">Middle name:</div>
+            <input type="text" id="input-middlename" class="form-input" placeholder="Middle name">
+
+            <div class="form-label">Last name:</div>
+            <input type="text" id="input-lastname" class="form-input" placeholder="Last name">
+
+            <div class="form-label">Email address</div>
+            <input type="email" id="input-email" class="form-input" placeholder="email@example.com">
+        </div>
+
+        <button class="btn-save" id="save-btn" onclick="saveAccount()">
+            <i class="fa-solid fa-floppy-disk"></i> Save changes
+        </button>
+    </div>
+
+    <!-- THEME CARD -->
+    <div id="content-theme" class="settings-card">
+        <div class="card-header">
+            <h1>Theme</h1>
+            <p>Change how your app looks</p>
+        </div>
+        <div class="theme-section">
+            <div class="theme-status" id="theme-status-text">Light</div>
+            <div class="theme-swatches">
+                <div class="swatch light active" id="sw-light" onclick="setTheme('light')" title="Light Theme"></div>
+                <div class="swatch dark"         id="sw-dark"  onclick="setTheme('dark')"  title="Dark Theme"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- REMINDER CARD -->
+    <div id="content-reminder" class="settings-card">
+        <div class="card-header">
+            <h1>Set reminder</h1>
+            <p>Change how we should remind you</p>
+        </div>
+        <div class="reminder-section">
+            <label>Remind me</label>
+            <input type="number" id="reminder-days" class="reminder-input" min="1" max="365" value="3">
+            <label>days before the deadline.</label>
+        </div>
+        <button class="btn-save" onclick="saveReminder()" style="margin-top:28px">
+            <i class="fa-solid fa-floppy-disk"></i> Save
+        </button>
+    </div>
+
+</main>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
