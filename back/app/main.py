@@ -15,7 +15,6 @@ from typing import List, Optional
 
 app = FastAPI(title="Infinite Website")
 
-# CORS middleware for development
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -24,7 +23,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Set static folder เอาไว้แนบงาน
 UPLOAD_DIR = "uploads"
 if not os.path.exists(UPLOAD_DIR):
     os.makedirs(UPLOAD_DIR)
@@ -33,9 +31,6 @@ app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 models.Base.metadata.create_all(bind=database.engine)
 
-# --- API Routes MUST be defined before the catch-all static mount ---
-
-# Include Routers
 app.include_router(tasks.router)
 app.include_router(settings.router)
 app.include_router(users.router)
@@ -44,7 +39,6 @@ app.include_router(users.router)
 def read_root():
     return {"message": "Welcome to Infinite Website API! 🚀"}
 
-# authentication routes
 @app.post("/signup", response_model=schemas.User)
 def signup(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
     db_user = crud.get_user_by_email(db, email=user.email)
@@ -53,12 +47,10 @@ def signup(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
     
     new_user = crud.create_user(db=db, user=user)
     
-    # Trigger AWS SNS Subscription
     subscribe_user_to_sns(user.email)
     
     return new_user
 
-# Frontend expects /token for login (standard OAuth2)
 @app.post("/token", response_model=schemas.Token)
 @app.post("/login", response_model=schemas.Token)
 def login(db: Session = Depends(database.get_db), form_data: OAuth2PasswordRequestForm = Depends()):
@@ -71,7 +63,6 @@ def login(db: Session = Depends(database.get_db), form_data: OAuth2PasswordReque
     access_token = auth.create_access_token(data={"sub": str(user.user_id)})
     return {"access_token": access_token, "token_type": "bearer"}
 
-# Task file upload
 @app.post("/tasks/{task_id}/upload", response_model=schemas.Task)
 async def upload_task_file(
     task_id: int, 
@@ -99,7 +90,6 @@ async def upload_task_file(
     db.refresh(db_task)
     return db_task
 
-# notification routes
 @app.get("/notifications") 
 def read_notifications(db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
     settings_data = crud.get_user_settings(db, user_id=current_user.user_id)
@@ -138,4 +128,3 @@ if os.path.exists(FRONTEND_DIR):
         return FileResponse(os.path.join(FRONTEND_DIR, "signup.html"))
     
     app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="front")
-rue), name="front")
