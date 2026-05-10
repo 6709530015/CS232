@@ -5,8 +5,98 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notification</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    
+    <div class="wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-top">
+                <div class="login-container">
+                    <img src="pics/InfiniteLoopWhite.png" alt="Logo" class="corner-image">
+                </div>
+                <nav class="menu">
+                    <a href="noti.html" class="menu-item active">
+                        <i class="fa-solid fa-bell"></i> Notification
+                    </a>
+                    <a href="main.html" class="menu-item">
+                        <i class="fa-solid fa-house"></i> Home
+                    </a>
+                </nav>
+
+                <div class="sidebar-bottom">
+                    <a href="setting.html" class="menu-item">
+                        <i class="fa-solid fa-gear"></i> Setting
+                    </a>
+                    <a href="#" class="menu-item" onclick="handleLogout()">
+                        <i class="fa-solid fa-right-from-bracket"></i> Log out
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="container">
+                <div class="card-header">
+                    <h1>Notifications</h1>
+                    <p>Stay updated with your task deadlines</p>
+                </div>
+
+                <div class="task-section" id="notificationList">
+                    <div class="task-card">
+                        <div class="task-info">
+                            <i class="fa-solid fa-circle-info" style="color: var(--sidebar-bg);"></i>
+                            <span>No new notifications</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer class="bottom-bar">Powered by Infinite Loop</footer>
+        </main>
+    </div>
+
+    <div id="toast"></div>
+
+    <script src="script.js"></script>
+    <script>
+        // Special logic for notification page
+        async function loadNotifications() {
+            const list = document.getElementById('notificationList');
+            try {
+                const res = await fetch(`${API_BASE}/notifications`, {
+                    headers: authHeaders()
+                });
+                if (!res.ok) throw new Error('Failed to fetch');
+                
+                const data = await res.json();
+                if (data.length === 0) return;
+
+                list.innerHTML = '';
+                data.forEach(noti => {
+                    const card = document.createElement('div');
+                    card.className = 'task-card';
+                    card.innerHTML = `
+                        <div class="task-info">
+                            <i class="fa-solid fa-triangle-exclamation" style="color: var(--notification-red);"></i>
+                            <div>
+                                <strong>${noti.message}</strong>
+                                <div style="font-size: 0.8rem; color: var(--sub-text);">
+                                    Due: ${new Date(noti.notify_date).toLocaleString()}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    list.appendChild(card);
+                });
+            } catch (err) {
+                console.error('Noti Error:', err);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (getToken()) {
+                loadNotifications();
+            }
+        });
+    </script>
 </body>
 </html>

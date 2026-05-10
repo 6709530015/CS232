@@ -51,8 +51,9 @@ body.dark-theme {
     --sub-text:         #A0A0A0;
     --bg-color:         #2D2D2D;
     --card-bg:          #1E1E1E;
+    --sidebar-bg:       #121212;
     --sidebar-active-bg:   #1E1E1E;
-    --sidebar-active-text: #7FBDFF;
+    --sidebar-active-text: #FFFFFF;
     --input-border:     #555555;
     --gray-avatar:      #444444;
 

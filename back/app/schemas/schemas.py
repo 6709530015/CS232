@@ -16,6 +16,10 @@ class User(UserBase):
     class Config:
         from_attributes = True
 
+class UserUpdate(BaseModel):
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+
 # --- TASK SCHEMAS ---
 class TaskBase(BaseModel):
     title: str

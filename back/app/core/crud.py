@@ -18,6 +18,14 @@ def create_user(db: Session, user: schemas.UserCreate):
     db.refresh(db_user)
     return db_user
 
+def update_user(db: Session, user: models.User, user_update: schemas.UserUpdate):
+    update_data = user_update.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(user, key, value)
+    db.commit()
+    db.refresh(user)
+    return user
+
 def get_user_tasks(db: Session, user_id: int): 
     return db.query(models.Task).filter(models.Task.user_id == user_id).all()
 

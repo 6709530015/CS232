@@ -2,9 +2,10 @@ import os
 from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from app.model import models
-from app.api.v1 import auth
+from app.api.v1 import auth, tasks, settings, users
 from app.core import crud
 from app.database import database
 from app.schemas import schemas
@@ -13,6 +14,15 @@ from datetime import datetime, timezone, timedelta
 from typing import List, Optional
 
 app = FastAPI(title="Infinite Website")
+
+# CORS middleware for development
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Set static folder เอาไว้แนบงาน
 UPLOAD_DIR = "uploads"
@@ -23,7 +33,14 @@ app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 models.Base.metadata.create_all(bind=database.engine)
 
-@app.get("/")
+# --- API Routes MUST be defined before the catch-all static mount ---
+
+# Include Routers
+app.include_router(tasks.router)
+app.include_router(settings.router)
+app.include_router(users.router)
+
+@app.get("/api")
 def read_root():
     return {"message": "Welcome to Infinite Website API! 🚀"}
 
@@ -41,6 +58,8 @@ def signup(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
     
     return new_user
 
+# Frontend expects /token for login (standard OAuth2)
+@app.post("/token", response_model=schemas.Token)
 @app.post("/login", response_model=schemas.Token)
 def login(db: Session = Depends(database.get_db), form_data: OAuth2PasswordRequestForm = Depends()):
     user = crud.get_user_by_email(db, email=form_data.username)
@@ -52,29 +71,7 @@ def login(db: Session = Depends(database.get_db), form_data: OAuth2PasswordReque
     access_token = auth.create_access_token(data={"sub": str(user.user_id)})
     return {"access_token": access_token, "token_type": "bearer"}
 
-# task routes
-@app.get("/tasks", response_model=List[schemas.Task])
-def read_tasks(db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
-    return crud.get_user_tasks(db, user_id=current_user.user_id)
-
-@app.post("/tasks", response_model=schemas.Task)
-def create_task(task: schemas.TaskCreate, db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
-    return crud.create_user_task(db=db, task=task, user_id=current_user.user_id)
-
-@app.patch("/tasks/{task_id}", response_model=schemas.Task)
-def update_task(task_id: int, task_update: schemas.TaskUpdate, db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
-    db_task = crud.update_task(db, task_id=task_id, task_update=task_update, user_id=current_user.user_id)
-    if not db_task:
-        raise HTTPException(status_code=404, detail="Task not found or permission denied")
-    return db_task
-
-@app.delete("/tasks/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_task(task_id: int, db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
-    success = crud.delete_task(db, task_id=task_id, user_id=current_user.user_id)
-    if not success:
-        raise HTTPException(status_code=404, detail="Task not found")
-    return None
-
+# Task file upload
 @app.post("/tasks/{task_id}/upload", response_model=schemas.Task)
 async def upload_task_file(
     task_id: int, 
@@ -102,29 +99,16 @@ async def upload_task_file(
     db.refresh(db_task)
     return db_task
 
-# settings routes
-@app.get("/settings", response_model=schemas.UserSetting)
-def read_settings(db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
-    settings = crud.get_user_settings(db, user_id=current_user.user_id)
-    if not settings:
-        default_settings = schemas.UserSettingUpdate(theme="light", reminder_days=1)
-        settings = crud.update_user_settings(db, settings=default_settings, user_id=current_user.user_id)
-    return settings
-
-@app.patch("/settings", response_model=schemas.UserSetting)
-def update_settings(settings_in: schemas.UserSettingUpdate, db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
-    return crud.update_user_settings(db, settings=settings_in, user_id=current_user.user_id)
-
 # notification routes
 @app.get("/notifications") 
 def read_notifications(db: Session = Depends(database.get_db), current_user: models.User = Depends(auth.get_current_user)):
-    settings = crud.get_user_settings(db, user_id=current_user.user_id)
-    days_to_notify = settings.reminder_days if settings else 1
+    settings_data = crud.get_user_settings(db, user_id=current_user.user_id)
+    days_to_notify = settings_data.reminder_days if settings_data else 1
 
     now = datetime.now(timezone.utc)
     notify_until = now + timedelta(days=days_to_notify)
 
-    tasks = db.query(models.Task).filter(
+    tasks_list = db.query(models.Task).filter(
         models.Task.user_id == current_user.user_id,
         models.Task.status == "pending",
         models.Task.due_date != None,
@@ -141,5 +125,17 @@ def read_notifications(db: Session = Depends(database.get_db), current_user: mod
             "is_read": False,
             "is_sent": False
         }
-        for task in tasks
+        for task in tasks_list
     ]
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+FRONTEND_DIR = os.path.join(BASE_DIR, "front")
+
+if os.path.exists(FRONTEND_DIR):
+    @app.get("/app")
+    def serve_frontend():
+        from fastapi.responses import FileResponse
+        return FileResponse(os.path.join(FRONTEND_DIR, "signup.html"))
+    
+    app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="front")
+rue), name="front")

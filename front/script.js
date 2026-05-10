@@ -1,3 +1,6 @@
+const API_BASE = window.location.origin;
+const TOKEN_KEY = 'token';
+
 /*===================== Sign up ================================*/
 const signInBtn = document.getElementById("signInBtn");
 
@@ -318,12 +321,6 @@ init();
 
 
 //-----------------(setting)-----------------------
-/* =============================================
-   ⚙️  CONFIG — แก้ตรงนี้เมื่อรู้ URL จริง
-============================================= */
-const API_BASE = 'http://localhost:8000';   // ← เปลี่ยนเป็น URL จริงตรงนี้
-const TOKEN_KEY = 'token';                  // ← key ที่เก็บ token ใน localStorage
-
 /* =============================================
    HELPERS
 ============================================= */
