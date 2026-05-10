@@ -150,6 +150,17 @@ taskForm.addEventListener('submit', (e) => {
     modal.style.display = 'none';
     currentEditingName = "";
 });
+//Verify the url, be able to click the link directly
+function linkify(text) {
+    if (!text) return "";
+    // Regex สำหรับค้นหา URL
+    const urlPattern = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+    
+    return text.replace(urlPattern, function(url) {
+        // คืนค่าเป็นแท็ก <a> เพื่อให้คลิกได้ และเปิด Tab ใหม่ (target="_blank")
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color: #7FBDFF; text-decoration: underline;">${url}</a>`;
+    });
+}
 
 function renderEverything() {
     //sorting task
@@ -163,6 +174,7 @@ function renderEverything() {
     allTasks.forEach(task => {
         const [y, m, d] = task.date.split('-');
         const card = document.createElement('div');
+        const detailHTML = linkify(task.detail);
         card.className = `task-card ${task.completed ? 'completed' : ''}`;
         card.setAttribute('data-detail', task.detail);
         card.innerHTML = `
@@ -173,6 +185,10 @@ function renderEverything() {
                         <span class="icon delete-btn" onclick="deleteTask('${task.name}')">
                             <i class="fa-regular fa-trash-can"></i>
                         </span>
+                </div>
+                <div class="task-info">
+                    <h3>${task.name}</h3>
+                    <p class="task-detail">${detailHTML}</p> 
                 </div>
             </div>
         `;
