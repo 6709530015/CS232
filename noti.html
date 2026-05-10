@@ -5,8 +5,202 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notification</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+
+    </style>
 </head>
 <body>
-    
+    <div class="wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-top">
+                <div class="login-container">
+                    <img src="pics/InfiniteLoopWhite.png" alt="Logo" class="corner-image">
+                </div>
+                <nav class="menu">
+                    <a href="noti.html" class="menu-item active">
+                        <i class="fa-solid fa-bell"></i> Notification
+                    </a>
+                    <a href="main.html" class="menu-item">
+                        <i class="fa-solid fa-house"></i> Home
+                    </a>
+                </nav>
+                <div class="sidebar-bottom">
+                    <a href="setting.html" class="menu-item">
+                        <i class="fa-solid fa-gear"></i> Setting
+                    </a>
+                    <a href="#" class="menu-item" onclick="handleLogout()">
+                        <i class="fa-solid fa-right-from-bracket"></i> Log out
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="container">
+                <div class="card-header">
+                    <h1>Notification</h1>
+                    <p class="noti-subtitle" id="notiSubtitle"></p>
+                </div>
+
+                <!-- TODAY group -->
+                <div class="noti-group-label" id="labelToday" onclick="toggleGroup('Today')">
+                    Today <i class="fa-solid fa-caret-down"></i>
+                </div>
+                <div class="task-section" id="groupToday"></div>
+
+                <!-- PREVIOUS group -->
+                <div class="noti-group-label" id="labelPrevious" onclick="toggleGroup('Previous')">
+                    Previous <i class="fa-solid fa-caret-down"></i>
+                </div>
+                <div class="task-section" id="groupPrevious"></div>
+            </div>
+
+            <footer class="bottom-bar">Powered by Infinite Loop</footer>
+        </main>
+    </div>
+
+    <div id="toast"></div>
+
+    <script>
+        /* =============================================
+           HELPERS  (inlined — do NOT load script.js here,
+           it calls init/generateCalendar/fab which crash
+           outside main.html)
+        ============================================= */
+        const TOKEN_KEY = 'token';
+
+        function setTheme(mode) {
+            document.body.classList.toggle('dark-theme', mode === 'dark');
+            localStorage.setItem('infiniteAppTheme', mode);
+        }
+
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'show ' + type;
+            clearTimeout(t._tid);
+            t._tid = setTimeout(() => { t.className = ''; }, 2800);
+        }
+
+        async function handleLogout() {
+            if (!confirm('Log out?')) return;
+            localStorage.removeItem(TOKEN_KEY);
+            window.location.href = 'signup.html';
+        }
+
+        /* Apply saved theme immediately (prevents flash) */
+        (function () {
+            const saved = localStorage.getItem('infiniteAppTheme');
+            setTheme(saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+        })();
+
+        /* =============================================
+           COLLAPSE / EXPAND
+        ============================================= */
+        function toggleGroup(name) {
+            const group = document.getElementById('group' + name);
+            const label = document.getElementById('label' + name);
+            const isHidden = group.style.display === 'none';
+            group.style.display = isHidden ? '' : 'none';
+            label.classList.toggle('collapsed', !isHidden);
+        }
+
+        /* =============================================
+           BUILD ONE CARD
+        ============================================= */
+        function makeNotiCard(task, groupClass) {
+            const [y, m, d] = task.date.split('-');
+            const displayDate = `${d}/${m}/${y}`;
+
+            let badge = displayDate;
+            if (task.diffDays === 0)      badge = 'Today';
+            else if (task.diffDays === 1) badge = 'Tomorrow';
+
+            const card = document.createElement('div');
+            card.className = `noti-card ${groupClass}`;
+            card.innerHTML = `
+                <div class="noti-left">
+                    <span class="noti-dot"></span>
+                    <div>
+                        <div class="noti-name">${task.name}</div>
+                        <div class="noti-due">Due: ${displayDate}</div>
+                    </div>
+                </div>
+                <span class="noti-date-badge">${badge}</span>
+            `;
+            return card;
+        }
+
+        /* =============================================
+           MAIN RENDERER
+        ============================================= */
+        function renderNotifications() {
+            const reminderDays = parseInt(localStorage.getItem('reminderDays') || '3', 10);
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const todayEl    = document.getElementById('groupToday');
+            const previousEl = document.getElementById('groupPrevious');
+            const subtitle   = document.getElementById('notiSubtitle');
+
+            /* Read tasks saved by main.html — fallback to empty array */
+            let allTasks = [];
+            try {
+                allTasks = JSON.parse(localStorage.getItem('allTasks') || '[]');
+            } catch (_) {}
+
+            const active = allTasks.filter(t => !t.completed);
+
+            const upcoming = [];
+            const previous = [];
+
+            active.forEach(task => {
+                const due = new Date(task.date);
+                due.setHours(0, 0, 0, 0);
+                const diffDays = Math.round((due - today) / 86_400_000);
+
+                if (diffDays >= 0 && diffDays <= reminderDays) {
+                    upcoming.push({ ...task, diffDays });
+                } else if (diffDays < 0) {
+                    previous.push({ ...task, diffDays });
+                }
+            });
+
+            /* Subtitle */
+            if (upcoming.length > 0) {
+                subtitle.textContent = 'Deadlines coming up!';
+            } else if (previous.length > 0) {
+                subtitle.textContent = 'You have overdue tasks!';
+            } else {
+                subtitle.textContent = "You're all caught up.";
+            }
+
+            /* Today / upcoming */
+            todayEl.innerHTML = '';
+            if (upcoming.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'noti-card empty';
+                empty.textContent = 'No upcoming deadlines';
+                todayEl.appendChild(empty);
+            } else {
+                upcoming.forEach(t => todayEl.appendChild(makeNotiCard(t, 'today')));
+            }
+
+            /* Previous / overdue */
+            previousEl.innerHTML = '';
+            if (previous.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'noti-card previous empty';
+                empty.textContent = 'No overdue tasks';
+                previousEl.appendChild(empty);
+            } else {
+                previous.forEach(t => previousEl.appendChild(makeNotiCard(t, 'previous')));
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', renderNotifications);
+    </script>
 </body>
 </html>
