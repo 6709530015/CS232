@@ -34,7 +34,7 @@ if (signInBtn) {
                 showToast("✅ เข้าสู่ระบบสำเร็จ!", "success");
                 
                 setTimeout(() => {
-                    window.location.href = "main.html";
+                    window.location.href = "index.html";
                 }, 1000);
 
             } else {
@@ -347,7 +347,7 @@ function showToast(msg, type = 'success') {
    NAVIGATION
 ============================================= */
 function GoToHome() {
-    window.location.href = 'main.html';
+    window.location.href = 'index.html';
 }
 
 function GoToSetting() {
